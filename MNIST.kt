@@ -1,76 +1,75 @@
+import MNIST.testing
+import MNIST.training
 import java.io.BufferedInputStream
 import java.io.DataInputStream
 import java.io.FileInputStream
 
-
+/**
+ * MNIST (Modified NIST) is a dataset of 28x28 grayscale images of handwritten
+ * digits, remixed from the original dataset created in 1994. It contains
+ * 60,000 [training] images and 10,000 [testing] images.
+ *
+ * [Wikipedia](https://en.wikipedia.org/wiki/MNIST_database)
+ */
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 object MNIST {
 
     const val SIZE = 28
     const val INPUT_SIZE = SIZE * SIZE
     const val OUTPUT_SIZE = 10
 
+    private val outputArrays = Array(OUTPUT_SIZE) { label -> FloatArray(OUTPUT_SIZE) { if (it == label) 1f else 0f } }
+
     /**
-     * An [MNIST] [Datapoint] has a [FloatArray] with size [SIZE] (28x28=784),
-     * and an integer [label] that indicates which digit it represents.
+     * An [MNIST] [Datapoint] is a 28 by 28 grayscale drawing of a decimal
+     * digit, compiled by NIST during the 1970s. It has [data] as a [FloatArray]
+     * of size [INPUT_SIZE] (28x28=784), and an integer [label] from 0 to 9,
+     * indicating which digit it represents.
      */
     class Datapoint(val label: Int) {
-        private val data = Array(SIZE) { FloatArray(SIZE) }
+        val data = FloatArray(INPUT_SIZE)
 
-        operator fun get(x: Int, y: Int): Float = data[x][y]
-
-        operator fun set(x: Int, y: Int, value: Float) {
-            data[x][y] = value
-        }
-
-        val asInput: FloatArray by lazy {
-            FloatArray(INPUT_SIZE) { data[it.rem(SIZE)][it.div(SIZE)] }
-        }
-
-        val asExpectedOutput: FloatArray by lazy {
-            FloatArray(OUTPUT_SIZE) { if (it == label) 1f else 0f }
-        }
-
-        override fun toString(): String = StringBuilder().also {
-            it.append("LABEL: $label\n")
-            for (x in 0 until SIZE) {
-                for (y in 0 until SIZE)
-                    it.append(if (this[x, y] > 0) "##" else "  ")
-                it.append("\n")
-            }
-        }.toString()
+        val asOutputArray: FloatArray get() = outputArrays[label]
     }
 
-    val TRAINING_DATASET by lazy { load("data/train-images.idx3-ubyte", "data/train-labels.idx1-ubyte") }
-    val TESTING_DATASET by lazy { load("data/t10k-images.idx3-ubyte", "data/t10k-labels.idx1-ubyte") }
+    val training
+            by lazy { read("data/train-images.idx3-ubyte", "data/train-labels.idx1-ubyte") }
+    val testing
+            by lazy { read("data/t10k-images.idx3-ubyte", "data/t10k-labels.idx1-ubyte") }
 
-    private fun load(images: String, labels: String): Array<Datapoint> {
+    /**
+     * Reads images and their labels from binary dataset files, given a
+     * [imagesFilename] and a [labelsFilename].
+     *
+     * The binary format of the files is the one used by Yann LeCun.
+     */
+    fun read(imagesFilename: String, labelsFilename: String): Array<Datapoint> {
 
         // create the streams for images and labels files
-        val imagesStream = DataInputStream(BufferedInputStream(FileInputStream(images)))
-        val labelsStream = DataInputStream(BufferedInputStream(FileInputStream(labels)))
+        val images = DataInputStream(BufferedInputStream(FileInputStream(imagesFilename)))
+        val labels = DataInputStream(BufferedInputStream(FileInputStream(labelsFilename)))
 
         // verify their magic numbers
-        assert(imagesStream.readInt() == 2051)
-        assert(labelsStream.readInt() == 2049)
+        assert(images.readInt() == 2051)
+        assert(labels.readInt() == 2049)
 
         // read and verify counts and dimensions
-        val count = imagesStream.readInt()
-        assert(count == labelsStream.readInt())
-        assert(imagesStream.readInt() == SIZE)
-        assert(imagesStream.readInt() == SIZE)
+        val count = images.readInt()
+        assert(count == labels.readInt())
+        assert(images.readInt() == SIZE)
+        assert(images.readInt() == SIZE)
 
         // read the actual data
         return Array(count) {
-            Datapoint(labelsStream.readUnsignedByte()).also {
-                for (x in 0 until SIZE)
-                    for (y in 0 until SIZE)
-                        it[x, y] = imagesStream.readUnsignedByte() / 255f
+            Datapoint(labels.readUnsignedByte()).also {
+                for (i in 0 until INPUT_SIZE)
+                    it.data[i] = images.readUnsignedByte() / 255f
             }
         }
     }
 
     /**
-     * Matches the output vector from a model to a label.
+     * Matches an output array to a label.
      *
      * ## Arguments
      *

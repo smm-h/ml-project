@@ -76,7 +76,7 @@ object Genetics {
         val random = Random(seed)
         log("Random number generator seed: $seed")
 
-        val data = MNIST.TESTING_DATASET
+        val data = MNIST.testing
         val dataSize = data.size
         log("Data: MNIST.TESTING_DATASET, size: $dataSize")
 
@@ -137,7 +137,7 @@ object Genetics {
                 val model = p.model
                 var successful = 0
                 for (datapoint in data) {
-                    val input = datapoint.asInput
+                    val input = datapoint.data
                     val output = model.forwardPropagate(input)
                     if (MNIST.determineLabel(output) == datapoint.label) {
                         successful++

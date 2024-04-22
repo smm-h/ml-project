@@ -2,7 +2,7 @@ object Test {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val data = MNIST.TESTING_DATASET
+        val data = MNIST.testing
 
         for ((experiment, model) in Genetics.topModels()) {
 
@@ -13,11 +13,11 @@ object Test {
             var loss = 0f
 
             for (datapoint in data) {
-                val output = model.forwardPropagate(datapoint.asInput)
+                val output = model.forwardPropagate(datapoint.data)
                 val expectedLabel = datapoint.label
                 val determinedLabel = MNIST.determineLabel(output)
                 if (expectedLabel == determinedLabel) {
-                    loss += model.calculateLoss(output, datapoint.asExpectedOutput)
+                    loss += model.calculateLoss(output, datapoint.asOutputArray)
                     successful++
                 }
                 total++
