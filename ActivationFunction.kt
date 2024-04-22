@@ -16,7 +16,7 @@ class ActivationFunction(
 ) : (Float) -> Float {
 
     init {
-        names[name] = this
+        names[name.lowercase()] = this
     }
 
     override fun hashCode(): Int =
@@ -49,7 +49,7 @@ class ActivationFunction(
     companion object {
         private val names = mutableMapOf<String, ActivationFunction>()
         fun findByName(name: String): ActivationFunction? {
-            return names[name]
+            return names[name.lowercase()]
         }
 
         val IDENTITY = ActivationFunction(
