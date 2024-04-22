@@ -6,11 +6,12 @@ import java.io.FileInputStream
 object MNIST {
 
     const val SIZE = 28
-    const val INPUT_SIZE = 28 * 28
+    const val INPUT_SIZE = SIZE * SIZE
     const val OUTPUT_SIZE = 10
 
     /**
-     * An MNIST datapoint is basically a fixed-size two-dimensional integer array with a label
+     * An [MNIST] [Datapoint] has a [FloatArray] with size [SIZE] (28x28=784),
+     * and an integer [label] that indicates which digit it represents.
      */
     class Datapoint(val label: Int) {
         private val data = Array(SIZE) { FloatArray(SIZE) }

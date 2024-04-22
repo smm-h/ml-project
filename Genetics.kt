@@ -1,9 +1,68 @@
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.io.path.Path
 import kotlin.io.path.pathString
 import kotlin.math.pow
 
-object Genetics : Experiment() {
+object Genetics {
+    private val dateFormat = SimpleDateFormat("YYYYMMDD_hhmmss")
+
+    val startDate = Date()
+    val timestamp: String = dateFormat.format(startDate)
+    val path: Path = Path("experiments/$timestamp")
+    val logFile: File = File("${path.pathString}/log.txt")
+
+    // TODO last experiment
+
+    init {
+        Files.createDirectory(path)
+        File("experiments/list.txt").appendText("$timestamp\n")
+        log("EXPERIMENT STARTED AT: $timestamp")
+        logSeparator()
+    }
+
+    fun log(string: String) {
+        println(string)
+        logFile.appendText("[${dateFormat.format(Date())}] \t $string\n")
+    }
+
+    fun logSeparator() =
+        log("--------------------------------")
+
+
+    fun finish() {
+        logSeparator()
+        log("EXPERIMENT FINISHED IN $timeElapsed ms")
+    }
+
+    val timeElapsed: Long get() = Date().time - startDate.time
+
+    private val hiddenLayerSizes = listOf(16, 16)
+    private val random = Random()
+
+    fun createEmptyModel(): MultilayerPerceptron =
+        MultilayerPerceptron.create(
+            inputSize = MNIST.INPUT_SIZE,
+            outputSize = MNIST.OUTPUT_SIZE,
+            hiddenLayerSizes = hiddenLayerSizes,
+            hiddenLayerAF = ActivationFunction.RELU,
+            outputAF = ActivationFunction.CAPPED_RELU,
+        )
+
+    fun createRandomModel(): MultilayerPerceptron =
+        createEmptyModel().apply { randomize(random) }
+
+    fun topModels(): Map<String, MultilayerPerceptron> {
+        return Files.readString(Path.of("experiments/list.txt")).trim().split("\n")
+            .filter { Files.exists(Path.of((modelFilename(it)))) }
+            .associateWith { MultilayerPerceptron.readFromFile(modelFilename(it)) }
+    }
+
+    private fun modelFilename(experimentTimestamp: String) =
+        "experiments/$experimentTimestamp/0.${MultilayerPerceptron.FILE_EXT}"
 
     private data class RankedModel(
         var model: MultilayerPerceptron,
@@ -32,9 +91,9 @@ object Genetics : Experiment() {
 //        val mutationSize = populationSize - noMutationSize
 //        log("No mutation: ${noMutationRate * 100}% = $noMutationSize")
 
-        val previousBest = MultilayerPerceptron.readFromFile(TestTopModels.modelFilename("202404111_070518"))
+        val previousBest = MultilayerPerceptron.readFromFile(modelFilename("202404111_070518"))
 
-        val population = Array(populationSize) { RankedModel(previousBest) } // Base.createRandomModel()
+        val population = Array(populationSize) { RankedModel(previousBest) } // createRandomModel()
 
         val selectionRate = 0.2f
         val selectionSize = (populationSize * selectionRate).toInt().coerceAtLeast(2)
@@ -105,7 +164,7 @@ object Genetics : Experiment() {
             population.forEachIndexed { i, p ->
                 if (i > 0)
 //                    val m = if (i > noMutationSize) (i - noMutationSize).toFloat() / mutationSize else 0f
-                    p.model = Base.createEmptyModel().apply { populate(selection, random, mutationProbability) }
+                    p.model = createEmptyModel().apply { populate(selection, random, mutationProbability) }
             }
         }
 

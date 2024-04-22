@@ -1,13 +1,10 @@
-import java.nio.file.Files
-import java.nio.file.Path
-
-object TestTopModels {
+object Test {
     @JvmStatic
     fun main(args: Array<String>) {
 
         val data = MNIST.TESTING_DATASET
 
-        for ((experiment, model) in topModels()) {
+        for ((experiment, model) in Genetics.topModels()) {
 
             println("Experiment: $experiment")
 
@@ -30,13 +27,4 @@ object TestTopModels {
             println("Average successful loss: ${loss / successful}")
         }
     }
-
-    fun topModels(): Map<String, MultilayerPerceptron> {
-        return Files.readString(Path.of("experiments/list.txt")).trim().split("\n")
-            .filter { Files.exists(Path.of((modelFilename(it)))) }
-            .associateWith { MultilayerPerceptron.readFromFile(modelFilename(it)) }
-    }
-
-    fun modelFilename(experimentTimestamp: String) =
-        "experiments/$experimentTimestamp/0.${MultilayerPerceptron.FILE_EXT}"
 }
