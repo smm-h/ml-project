@@ -7,7 +7,6 @@ import kotlin.math.pow
 /**
  * [Wikipedia](https://en.wikipedia.org/wiki/Multilayer_perceptron)
  */
-@Suppress("unused")
 class MultilayerPerceptron private constructor(
     private val inputSize: Int,
     private val layers: Array<Layer>,
@@ -36,8 +35,8 @@ class MultilayerPerceptron private constructor(
             FloatArray(neurons.size) { activationFunction(neurons[it].calculate(input)) }
     }
 
-    class Neuron(val weights: FloatArray, val bias: Float) {
-        fun calculate(input: FloatArray): Float = weights.indices.fold(-bias) { sum, i -> sum + input[i] * weights[i] }
+    private class Neuron(val weights: FloatArray, val bias: Float) {
+        fun calculate(input: FloatArray): Float = weights.indices.fold(bias) { sum, i -> sum + input[i] * weights[i] }
     }
 
     private fun randomNeuron(size: Int, random: Random) =
@@ -76,27 +75,46 @@ class MultilayerPerceptron private constructor(
         }
     }
 
-    companion object {
+    data class Structure(
+        val inputSize: Int,
+        val outputSize: Int,
+        val hiddenLayerSizes: List<Int>,
+    ) {
+        /**
+         * in bytes
+         */
+        fun estimateFileSize(): Long {
+            var size = 32L + hiddenLayerSizes.size * 3
+            for (i in hiddenLayerSizes.indices) {
+                val next = if (i == hiddenLayerSizes.size - 1) outputSize else hiddenLayerSizes[i + 1]
+                size += next * (hiddenLayerSizes[i] * 4 + 1)
+            }
+            return size
+        }
+    }
 
+    data class Blueprint(
+        val structure: Structure,
+        val outputLayerActivationFunction: ActivationFunction,
+        val hiddenLayerActivationFunctions: List<ActivationFunction>,
+    ) {
+        private val n = structure.hiddenLayerSizes.size
+        private val layerSizes = IntArray(n + 1) { i ->
+            if (i == n) structure.outputSize else structure.hiddenLayerSizes[i]
+        }
+
+        fun instantiate() = MultilayerPerceptron(structure.inputSize, Array(n + 1) { i ->
+            Layer(
+                Array(layerSizes[i]) { PLACEHOLDER_NEURON },
+                if (i == n) outputLayerActivationFunction else hiddenLayerActivationFunctions[i]
+            )
+        })
+    }
+
+    companion object {
         const val FILE_EXT = "mlp"
 
         private val PLACEHOLDER_NEURON = Neuron(FloatArray(0), 0f)
-
-        fun create(
-            inputSize: Int,
-            hiddenLayerSizes: List<Int>,
-            outputSize: Int,
-            hiddenLayerAF: ActivationFunction,
-            outputAF: ActivationFunction,
-        ): MultilayerPerceptron {
-            val n = hiddenLayerSizes.size
-            val layerSizes = IntArray(n + 1) { i ->
-                if (i == n) outputSize else hiddenLayerSizes[i]
-            }
-            return MultilayerPerceptron(inputSize, Array(n + 1) { i ->
-                Layer(Array(layerSizes[i]) { PLACEHOLDER_NEURON }, if (i == n) outputAF else hiddenLayerAF)
-            })
-        }
 
         fun readFromFile(filename: String): MultilayerPerceptron {
             assert(Path(filename).extension == FILE_EXT)

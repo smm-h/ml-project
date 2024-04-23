@@ -1,43 +1,35 @@
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.io.path.Path
 import kotlin.math.pow
 
 @Suppress("unused", "KotlinConstantConditions")
-class Genetics(
+class Experiment(
+    private val directory: ExperimentDirectory,
     private val data: List<LabeledData>,
-    private val createEmptyModel: () -> MultilayerPerceptron,
+    private val blueprint: MultilayerPerceptron.Blueprint,
     private val labeler: (FloatArray) -> Int,
     private val seed: Long = (Math.random() * Long.MAX_VALUE).toLong(),
-    private val path: String = "experiments",
     private val logToFile: Boolean = true,
     private val printLog: Boolean = true,
     logFilename: String = "log.txt",
     plotFilename: String = "plot.csv",
-    indexFilename: String = "index.txt",
 ) {
 
     companion object {
         val dateFormat: DateFormat = SimpleDateFormat("YYYYMMdd_hhmmss")
     }
 
-    init {
-        Files.createDirectory(Path(path))
-    }
-
     private val random = Random(seed)
     private val startDate = Date()
     private val timestamp = dateFormat.format(startDate)
-    private val indexFile = File("$path/$indexFilename")
-    private val logFile = File("$path/$timestamp/$logFilename")
-    private val plotFile = File("$path/$timestamp/$plotFilename")
+    private val path = directory.path + "/" + timestamp
+    private val logFile = File(path + logFilename)
+    private val plotFile = File(path + plotFilename)
 
     init {
-        indexFile.appendText("$timestamp\n")
+        directory.indexFile.appendText("$timestamp\n")
     }
 
     private fun log(string: String) {
@@ -51,16 +43,7 @@ class Genetics(
     private fun getElapsedTime(): Long = Date().time - startDate.time
 
     private fun createRandomModel(): MultilayerPerceptron =
-        createEmptyModel().apply { randomize(random) }
-
-    fun topModels(): Map<String, MultilayerPerceptron> {
-        return indexFile.readText().trim().split("\n")
-            .filter { Files.exists(Path.of((modelFilename(it)))) }
-            .associateWith { MultilayerPerceptron.readFromFile(modelFilename(it)) }
-    }
-
-    private fun modelFilename(experimentTimestamp: String) =
-        "$path/$experimentTimestamp/0.${MultilayerPerceptron.FILE_EXT}"
+        blueprint.instantiate().apply { randomize(random) }
 
     private data class RankedModel(
         var model: MultilayerPerceptron,
@@ -100,7 +83,9 @@ class Genetics(
         val saveEvery = 30 * 1000L
         var lastSavedAt = 0L
         log("Save model every ${saveEvery / 1000L} seconds")
-        log("Estimated model file size")
+
+        log("Model structure: ${blueprint.structure}")
+        log("Estimated model file size: ${blueprint.structure.estimateFileSize()}")
 
         val logEvery = 1
         log("Log information every $logEvery generation(s)")
@@ -169,7 +154,7 @@ class Genetics(
             val parents = population.slice(parentsSlice).map(RankedModel::model)
 
             population.forEach {
-                it.model = createEmptyModel().apply { populate(parents, random, mutationProbability) }
+                it.model = blueprint.instantiate().apply { populate(parents, random, mutationProbability) }
             }
 
             population[populationSize - 1].model = topModel
