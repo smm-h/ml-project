@@ -130,20 +130,49 @@ class MultilayerPerceptron private constructor(
                 Layer(Array(size) { PLACEHOLDER_NEURON }, af)
             }
 
+            var weightsSize = inputSize
+
             // neuronData
             layers.forEach { layer ->
                 val neuronsArray = layer.neurons
                 for (i in neuronsArray.indices) {
                     val bias = s.readFloat()
-                    val weightsSize = s.readShort()
-                    val weights = FloatArray(weightsSize.toInt()) {
+                    val weights = FloatArray(weightsSize) {
                         s.readFloat()
                     }
                     neuronsArray[i] = Neuron(weights, bias)
                 }
+                weightsSize = layer.size
             }
 
             return MultilayerPerceptron(inputSize, layers)
+        }
+
+        /**
+         * in bytes
+         */
+        fun estimateFileSize(layers: List<Int>): Long {
+            val n = layers.size
+            var size = 32L + n * 3
+            for (i in 1 until n) {
+                size += layers[i] * (layers[i - 1] * 4 + 1)
+            }
+            return size
+        }
+
+        @JvmStatic
+        fun main(args: Array<String>) {
+            listOf(
+                listOf(784, 10), // 31,41 KB
+                listOf(784, 16, 16, 10), // 51,93 KB
+                listOf(784, 800, 10), // 2,54 MB
+                listOf(784, 2500, 2000, 1500, 1000, 500, 10), // 47,87 MB
+                listOf(784, 40, 80, 500, 1000, 2000, 10), // 10,38 MB
+                listOf(784, 50, 100, 500, 1000, 10), // 2,42 MB
+                listOf(784, 128, 128, 128, 128, 128, 256, 256, 256, 512, 2048, 256, 256, 10), // 8,41 MB
+            ).forEach {
+                println(Util.formatFileSizeBase2(estimateFileSize(it)))
+            }
         }
     }
 
@@ -180,10 +209,8 @@ class MultilayerPerceptron private constructor(
         layers.forEach { layer ->
             layer.neurons.forEach { neuron ->
                 s.writeFloat(neuron.bias)
-                val weights = neuron.weights
-                s.writeShort(weights.size)
-                weights.forEach { weight ->
-                    s.writeFloat(weight)
+                neuron.weights.forEach {
+                    s.writeFloat(it)
                 }
             }
         }
