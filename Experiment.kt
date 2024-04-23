@@ -31,7 +31,7 @@ class Experiment(
     private val random = Random(seed)
     private val startDate = Date()
     private val timestamp = dateFormat.format(startDate)
-    private val path = directory.path + "/" + timestamp
+    private val path = directory.path + "/" + timestamp + "/"
     private val logFile = File(path + logFilename)
     private val plotFile = File(path + plotFilename)
 
