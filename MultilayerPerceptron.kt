@@ -120,6 +120,10 @@ class MultilayerPerceptron private constructor(
         val outputLayerActivationFunction: ActivationFunction,
         val hiddenLayerActivationFunctions: List<ActivationFunction>,
     ) {
+        init {
+            assert(hiddenLayerActivationFunctions.size == structure.hiddenLayerSizes.size)
+        }
+
         fun instantiate(): MultilayerPerceptron {
             val n = structure.hiddenLayerSizes.size
             val layers = Array(n + 1) { i ->

@@ -1,6 +1,7 @@
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 
 @Suppress("MemberVisibilityCanBePrivate")
 class ExperimentDirectory(
@@ -11,9 +12,8 @@ class ExperimentDirectory(
     val indexFile = File("$path/$indexFilename")
 
     init {
-        if (createIfNotExists) {
-            Files.createDirectory(Path(path))
-        }
+        if (createIfNotExists)
+            Path(path).also { if (!it.exists()) Files.createDirectory(it) }
     }
 
     fun getExperiments(): List<String> {
@@ -50,10 +50,13 @@ class ExperimentDirectory(
     }
 
     companion object {
+
+        val defaultDirectory = ExperimentDirectory("experiments", true)
+
         @JvmStatic
         fun main(args: Array<String>) {
             val data = MNIST.testing
-            ExperimentDirectory("experiments", true).apply {
+            defaultDirectory.apply {
                 getTopModels().forEach { (timestamp, model) ->
                     println("Experiment: $timestamp")
                     testModel(model, data)

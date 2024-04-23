@@ -1,22 +1,32 @@
+import ActivationFunction.Companion.CAPPED_RELU
+import ActivationFunction.Companion.RELU
+import ExperimentDirectory.Companion.defaultDirectory
+import MNIST.INPUT_SIZE
+import MNIST.OUTPUT_SIZE
+import MNIST.determineLabel
+import MNIST.testing
+import MultilayerPerceptron.Blueprint
+import MultilayerPerceptron.Structure
+
 object Main {
     @JvmStatic
     fun main(args: Array<String>) {
-        val structure = MultilayerPerceptron.Structure(
-            inputSize = MNIST.INPUT_SIZE,
-            outputSize = MNIST.OUTPUT_SIZE,
-            hiddenLayerSizes = listOf(50, 100, 500, 1000), // listOf(16, 16),
-        )
-        val blueprint = MultilayerPerceptron.Blueprint(
-            structure = structure,
-            hiddenLayerActivationFunctions = List(4) { ActivationFunction.RELU },
-            outputLayerActivationFunction = ActivationFunction.CAPPED_RELU,
-        )
-        val directory = ExperimentDirectory("experiments", true)
         Experiment(
-            directory = directory,
-            data = MNIST.testing.slice(0 until 100),
-            labeler = MNIST::determineLabel,
-            blueprint = blueprint,
+            directory = defaultDirectory,
+            data = testing.slice(0 until 1000),
+            labeler = ::determineLabel,
+            blueprint = Blueprint(
+                structure = Structure(
+                    inputSize = INPUT_SIZE,
+                    outputSize = OUTPUT_SIZE,
+                    hiddenLayerSizes = listOf(400, 200, 100, 50, 25), // listOf(16, 16),
+                ),
+                hiddenLayerActivationFunctions = List(5) { RELU },
+                outputLayerActivationFunction = CAPPED_RELU,
+            ),
+            populationSize = 100,
+            mutationProbability = 0.01f,
+            saveEvery = 5000L,
         ).run()
     }
 }

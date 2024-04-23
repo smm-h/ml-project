@@ -5,7 +5,7 @@ object MNISTModelFileSizes {
     fun main(args: Array<String>) {
         listOf(
             listOf(16, 16), // 52,23 KB
-            listOf(400, 200, 100, 50), // 1,68 MB
+            listOf(400, 200, 100, 50, 25), // 1,69 MB
             listOf(800), // 2,55 MB
             listOf(2500, 2000, 1500, 1000, 500), // 47,92 MB
             listOf(40, 80, 500, 1000, 2000), // 10,41 MB

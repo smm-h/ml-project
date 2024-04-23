@@ -1,8 +1,9 @@
 import java.io.File
+import java.nio.file.Files
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.pow
+import kotlin.io.path.Path
 
 @Suppress("unused", "KotlinConstantConditions")
 class Experiment(
@@ -15,6 +16,12 @@ class Experiment(
     private val printLog: Boolean = true,
     logFilename: String = "log.txt",
     plotFilename: String = "plot.csv",
+    private val populationSize: Int,
+    private val mutationProbability: Float,
+    private val maxGeneration: Int = -1,
+    private val saveEvery: Long = 30000L,
+    private val logEvery: Int = 1,
+    private val plotEvery: Int = 1,
 ) {
 
     companion object {
@@ -30,6 +37,7 @@ class Experiment(
 
     init {
         directory.indexFile.appendText("$timestamp\n")
+        Files.createDirectory(Path(path))
     }
 
     private fun log(string: String) {
@@ -51,27 +59,22 @@ class Experiment(
     )
 
     fun run() {
-
-        log("EXPERIMENT STARTED")
-        logSeparator()
-
+        log("Welcome to a new experiment!")
         log("Random number generator seed: $seed")
-
-        val maxGeneration = -1
         log("Evolution will continue until ${if (maxGeneration == -1) "it is stopped" else "generation #$maxGeneration"}")
 
         val dataSize = data.size
         log("Testing data size: $dataSize")
-
-        val populationSize = (2.0).pow(7).toInt()
         log("Population size: $populationSize")
+
+        log("MLP structure: ${blueprint.structure}")
+        log("MLP file size: ${Util.formatFileSizeBase2(blueprint.fileSizeExact)}")
 
         val parentsRatio = 0.2
         val parentsCount = (parentsRatio * populationSize).toInt().coerceAtLeast(1)
         val parentsSlice = 0 until parentsCount
         log("Only the top ${parentsRatio * 100}% (=$parentsCount) get to reproduce")
 
-        val mutationProbability = 0.05f
         log("Mutation probability: ${mutationProbability * 100}%")
 
 //        val previousBest = MultilayerPerceptron.readFromFile(modelFilename("202404111_070518"))
@@ -79,24 +82,21 @@ class Experiment(
 //            RankedModel(previousBest)
             RankedModel(createRandomModel())
         }
+        log("Starting models are random")
 
-        val saveEvery = 30 * 1000L
+
         var lastSavedAt = 0L
-        log("Save model every ${saveEvery / 1000L} seconds")
-
-        log("Model structure: ${blueprint.structure}")
-        log("Model file size: ${blueprint.fileSizeExact}")
-
-        val logEvery = 1
-        log("Log information every $logEvery generation(s)")
-
-        val plotEvery = 1
-        log("Plot information every $plotEvery generation(s)")
+        log("The top model will be saved every ${saveEvery / 1000L} seconds")
+        log("Messages will be logged every $logEvery generation(s)")
+        log("Plot information will be saved every $plotEvery generation(s)")
 
         val stats = Stats.Floats()
 
         println("Press Enter to start...")
         readln()
+
+        logSeparator()
+        log("EXPERIMENT STARTED")
 
         plotFile.appendText("Generation,TimeElapsed,Average,Min,Max\n")
 
