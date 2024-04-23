@@ -18,23 +18,26 @@ class Genetics(
     private val printLog: Boolean = true,
     logFilename: String = "log.txt",
     plotFilename: String = "plot.csv",
-    listFilename: String = "list.txt",
+    indexFilename: String = "index.txt",
 ) {
 
     companion object {
         val dateFormat: DateFormat = SimpleDateFormat("YYYYMMdd_hhmmss")
     }
 
+    init {
+        Files.createDirectory(Path(path))
+    }
+
     private val random = Random(seed)
     private val startDate = Date()
     private val timestamp = dateFormat.format(startDate)
-    private val listFile = File("$path/$listFilename")
+    private val indexFile = File("$path/$indexFilename")
     private val logFile = File("$path/$timestamp/$logFilename")
     private val plotFile = File("$path/$timestamp/$plotFilename")
 
     init {
-        Files.createDirectory(Path(path))
-        listFile.appendText("$timestamp\n")
+        indexFile.appendText("$timestamp\n")
     }
 
     private fun log(string: String) {
@@ -51,7 +54,7 @@ class Genetics(
         createEmptyModel().apply { randomize(random) }
 
     fun topModels(): Map<String, MultilayerPerceptron> {
-        return listFile.readText().trim().split("\n")
+        return indexFile.readText().trim().split("\n")
             .filter { Files.exists(Path.of((modelFilename(it)))) }
             .associateWith { MultilayerPerceptron.readFromFile(modelFilename(it)) }
     }
