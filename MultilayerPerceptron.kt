@@ -7,12 +7,13 @@ import kotlin.math.pow
 /**
  * [Wikipedia](https://en.wikipedia.org/wiki/Multilayer_perceptron)
  */
+@Suppress("MemberVisibilityCanBePrivate")
 class MultilayerPerceptron private constructor(
-    private val inputSize: Int,
+    val blueprint: Blueprint,
     private val layers: Array<Layer>,
 ) {
-    @Suppress("MemberVisibilityCanBePrivate")
-    val outputSize: Int get() = layers.last().size
+    val inputSize: Int get() = blueprint.structure.inputSize
+    val outputSize: Int get() = blueprint.structure.outputSize
 
     fun forwardPropagate(input: FloatArray): FloatArray {
         assert(input.size == inputSize)
@@ -75,21 +76,42 @@ class MultilayerPerceptron private constructor(
         }
     }
 
-    data class Structure(
+    class Structure(
         val inputSize: Int,
         val outputSize: Int,
         val hiddenLayerSizes: List<Int>,
     ) {
+        init {
+            inputSize.also { assert(it in 1..<MAX_LAYER_SIZE) }
+            outputSize.also { assert(it in 1..<MAX_LAYER_SIZE) }
+            hiddenLayerSizes.also { assert(it.size in 1..<MAX_HIDDEN_LAYER_COUNT) }
+            hiddenLayerSizes.forEach { assert(it in 1..<MAX_LAYER_SIZE) }
+        }
+
+        private val string: String by lazy {
+            hiddenLayerSizes.joinToString(",", "[$inputSize,", ",$outputSize]")
+        }
+
+        override fun hashCode(): Int =
+            string.hashCode()
+
+        override fun equals(other: Any?): Boolean =
+            other is Structure && string == other.string
+
+        override fun toString(): String =
+            string
+
         /**
          * in bytes
          */
-        fun estimateFileSize(): Long {
-            var size = 32L + hiddenLayerSizes.size * 3
+        val fileSizeLowerBound: Long by lazy {
+            var size = 27L + hiddenLayerSizes.size * 12
             for (i in hiddenLayerSizes.indices) {
-                val next = if (i == hiddenLayerSizes.size - 1) outputSize else hiddenLayerSizes[i + 1]
-                size += next * (hiddenLayerSizes[i] * 4 + 1)
+                val prev = if (i == 0) inputSize else hiddenLayerSizes[i - 1]
+                size += hiddenLayerSizes[i] * (4 * prev + 8)
             }
-            return size
+            size += outputSize * (4 * hiddenLayerSizes[hiddenLayerSizes.size - 1] + 8)
+            size
         }
     }
 
@@ -98,114 +120,134 @@ class MultilayerPerceptron private constructor(
         val outputLayerActivationFunction: ActivationFunction,
         val hiddenLayerActivationFunctions: List<ActivationFunction>,
     ) {
-        private val n = structure.hiddenLayerSizes.size
-        private val layerSizes = IntArray(n + 1) { i ->
-            if (i == n) structure.outputSize else structure.hiddenLayerSizes[i]
+        fun instantiate(): MultilayerPerceptron {
+            val n = structure.hiddenLayerSizes.size
+            val layers = Array(n + 1) { i ->
+                val size =
+                    if (i == n) structure.outputSize
+                    else structure.hiddenLayerSizes[i]
+                val activationFunction =
+                    if (i == n) outputLayerActivationFunction
+                    else hiddenLayerActivationFunctions[i]
+                Layer(Array(size) { PLACEHOLDER_NEURON }, activationFunction)
+            }
+            return MultilayerPerceptron(this, layers)
         }
 
-        fun instantiate() = MultilayerPerceptron(structure.inputSize, Array(n + 1) { i ->
-            Layer(
-                Array(layerSizes[i]) { PLACEHOLDER_NEURON },
-                if (i == n) outputLayerActivationFunction else hiddenLayerActivationFunctions[i]
-            )
-        })
+        /**
+         * in bytes
+         */
+        val fileSizeExact: Long by lazy {
+            structure.fileSizeLowerBound +
+                    hiddenLayerActivationFunctions
+                        .toMutableSet()
+                        .apply { add(outputLayerActivationFunction) }
+                        .map(ActivationFunction::name)
+                        .sumOf { it.length + 1 }
+        }
     }
 
     companion object {
         const val FILE_EXT = "mlp"
 
+        private const val MAGIC_NUMBER = 30489 // 6519 (7719)
+        private const val VERSION_NUMBER = 1
+        private const val MAX_LAYER_SIZE = Int.MAX_VALUE
+        private const val MAX_HIDDEN_LAYER_COUNT = Int.MAX_VALUE
+
         private val PLACEHOLDER_NEURON = Neuron(FloatArray(0), 0f)
 
-        fun readFromFile(filename: String): MultilayerPerceptron {
+        private enum class OutputType { STRUCTURE, BLUEPRINT, MODEL }
+
+        fun readStructure(filename: String) = read(filename, OutputType.STRUCTURE) as Structure
+        fun readBlueprint(filename: String) = read(filename, OutputType.BLUEPRINT) as Blueprint
+        fun readModel(filename: String) = read(filename, OutputType.MODEL) as MultilayerPerceptron
+
+        private fun read(filename: String, outputType: OutputType): Any {
             assert(Path(filename).extension == FILE_EXT)
-
             val s = DataInputStream(BufferedInputStream(FileInputStream(filename)))
+            // TODO s.close()
 
-            // afCount
-            val numberOfActivationFunctions = s.readByte()
+            assert(s.readShort().toInt() == MAGIC_NUMBER)
+            assert(s.readByte().toInt() == VERSION_NUMBER)
 
-            // afs
-            val afs: Map<Int, ActivationFunction> = (0 until numberOfActivationFunctions).associateWith {
-                val nameSize = s.readByte().toInt()
-                val name = String(s.readNBytes(nameSize))
+            val inputSize = s.readInt()
+            val outputSize = s.readInt()
+            val hiddenLayerCount = s.readInt()
+            val hiddenLayerSizes = List(hiddenLayerCount) { s.readInt() }
+
+            val structure = Structure(inputSize, outputSize, hiddenLayerSizes)
+            if (outputType == OutputType.STRUCTURE)
+                return structure
+
+            val activationFunctionsCount = s.readInt()
+            val activationFunctions = List(activationFunctionsCount) {
+                val name = String(s.readNBytes(s.readByte().toInt()))
                 ActivationFunction.findByName(name)
-                    ?: throw UnsupportedOperationException("Invalid activation function name: '$name'")
+                    ?: throw UnsupportedOperationException("Invalid activation function: '$name'")
             }
 
-            // inputSize
-            val inputSize = s.readShort().toInt()
+            val outputLayerActivationFunction = activationFunctions[s.readInt()]
+            val hiddenLayerActivationFunctions = List(hiddenLayerCount) { activationFunctions[s.readInt()] }
 
-            // layerCount
-            val numberOfLayers = s.readByte().toInt()
-                .also { if (it < 2) throw IllegalArgumentException("Wrong number of layers: $it, must at least be: 2") }
+            val blueprint = Blueprint(structure, outputLayerActivationFunction, hiddenLayerActivationFunctions)
+            if (outputType == OutputType.BLUEPRINT)
+                return blueprint
 
-            // layers
-            val layers = Array(numberOfLayers) {
-                val afId = s.readByte().toInt()
-                val size = s.readShort().toInt()
-                val af = afs[afId]
-                    ?: throw NoSuchElementException("Invalid activation function index: '$afId'")
-                Layer(Array(size) { PLACEHOLDER_NEURON }, af)
-            }
+            val model = blueprint.instantiate()
 
-            var weightsSize = inputSize
-
-            // neuronData
-            layers.forEach { layer ->
+            model.layers.forEach { layer ->
                 val neuronsArray = layer.neurons
                 for (i in neuronsArray.indices) {
                     val bias = s.readFloat()
-                    val weights = FloatArray(weightsSize) {
-                        s.readFloat()
-                    }
+                    val weightsSize = s.readInt()
+                    val weights = FloatArray(weightsSize) { s.readFloat() }
                     neuronsArray[i] = Neuron(weights, bias)
                 }
-                weightsSize = layer.size
             }
 
-            return MultilayerPerceptron(inputSize, layers)
+            return model
         }
     }
 
     fun writeToFile(filename: String) {
-
         assert(Path(filename).extension == FILE_EXT)
-
         val s = DataOutputStream(BufferedOutputStream(FileOutputStream(filename)))
+        // TODO s.close()
 
-        val afs = layers.map(Layer::activationFunction).toSet().sortedBy { it.name }
+        s.writeShort(MAGIC_NUMBER)
+        s.writeByte(VERSION_NUMBER)
+        s.writeInt(inputSize)
+        s.writeInt(outputSize)
 
-        // afCount
-        s.writeByte(afs.size)
+        val hiddenLayerSizes = blueprint.structure.hiddenLayerSizes
+        s.writeInt(hiddenLayerSizes.size)
+        hiddenLayerSizes.forEach { s.writeInt(it) }
 
-        // afs
-        afs.forEach { af ->
-            s.writeByte(af.name.length)
-            s.writeBytes(af.name)
+        val activationFunctions = layers
+            .map(Layer::activationFunction)
+            .toSet()
+            .sortedBy(ActivationFunction::name)
+
+        s.writeInt(activationFunctions.size)
+        activationFunctions.forEach {
+            s.writeByte(it.name.length)
+            s.writeBytes(it.name)
         }
 
-        // inputSize
-        s.writeShort(inputSize)
-
-        // layerCount
-        s.writeByte(layers.size)
-
-        // layers
-        layers.forEach { layer ->
-            s.writeByte(afs.indexOf(layer.activationFunction))
-            s.writeShort(layer.size)
+        s.writeInt(activationFunctions.indexOf(layers.last().activationFunction))
+        layers.forEach {
+            s.writeInt(activationFunctions.indexOf(it.activationFunction))
         }
 
-        // neuronData
         layers.forEach { layer ->
+            s.writeInt(layer.size)
             layer.neurons.forEach { neuron ->
                 s.writeFloat(neuron.bias)
-                neuron.weights.forEach {
-                    s.writeFloat(it)
-                }
+                val weights = neuron.weights
+                s.writeInt(weights.size)
+                weights.forEach { s.writeFloat(it) }
             }
         }
-
-        s.close()
     }
 }

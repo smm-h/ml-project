@@ -1,31 +1,33 @@
 
+struct Neuron {
+    float bias;
+    u32 weightCount;
+    float weights[weightCount];
+};
+
+struct Layer {
+    u32 size;
+    Neuron neurons[size];
+};
+
 struct ActivationFunction {
     u8 nameSize;
     char name[nameSize];
 };
 
-struct Neuron {
-    float bias;
-    u16 weightCount;
+struct MultilayerPerceptron {
+    u16 magicNumber;
+    u8 versionNumber;
+    u32 inputSize;
+    u32 outputSize;
+    u32 hiddenLayerCount;
+    u32 hiddenLayerSizes[hiddenLayerCount];
+    u32 activationFunctionsCount;
+    ActivationFunction activationFunctions[activationFunctionsCount];
+    u32 outputLayerActivationFunctionId;
+    u32 hiddenLayerActivationFunctionIds[hiddenLayerCount];
+    Layer hiddenLayers[hiddenLayerCount];
+    Layer outputLayer;
 };
 
-struct NeuronData {
-    u16 size;
-    Neuron neurons[size];
-};
-
-struct Layer {
-    u8 afId;
-    u16 size;
-};
-
-struct Perceptron {
-    u8 afCount;
-    ActivationFunction afs[afCount];
-    u16 inputSize;
-    u8 layerCount;
-    Layer layers[layerCount];
-    NeuronData neuronData[layerCount];
-};
-
-be Perceptron perceptron @ 0;
+be MultilayerPerceptron multilayerPerceptron @ 0;

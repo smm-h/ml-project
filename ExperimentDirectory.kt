@@ -26,7 +26,7 @@ class ExperimentDirectory(
     fun getTopModels(): Map<String, MultilayerPerceptron> {
         return getExperiments()
             .filter { File(getModelFilename(it, 0)).exists() }
-            .associateWith { MultilayerPerceptron.readFromFile(getModelFilename(it, 0)) }
+            .associateWith { MultilayerPerceptron.readModel(getModelFilename(it, 0)) }
     }
 
     fun testModel(model: MultilayerPerceptron, data: List<LabeledData>) {

@@ -85,7 +85,7 @@ class Experiment(
         log("Save model every ${saveEvery / 1000L} seconds")
 
         log("Model structure: ${blueprint.structure}")
-        log("Estimated model file size: ${blueprint.structure.estimateFileSize()}")
+        log("Model file size: ${blueprint.fileSizeExact}")
 
         val logEvery = 1
         log("Log information every $logEvery generation(s)")
