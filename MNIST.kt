@@ -31,7 +31,7 @@ object MNIST {
      *
      * The binary format of the files is the one used by Yann LeCun.
      */
-    fun read(imagesFilename: String, labelsFilename: String): Array<Datapoint> {
+    fun read(imagesFilename: String, labelsFilename: String): List<LabeledData> {
 
         // create the streams for images and labels files
         val images = DataInputStream(BufferedInputStream(FileInputStream(imagesFilename)))
@@ -48,11 +48,10 @@ object MNIST {
         assert(images.readInt() == SIZE)
 
         // read the actual data
-        return Array(count) {
-            Datapoint(labels.readUnsignedByte()).also {
-                for (i in 0 until INPUT_SIZE)
-                    it.data[i] = images.readUnsignedByte() / 255f
-            }
+        return List(count) {
+            val label = labels.readUnsignedByte()
+            val data = FloatArray(INPUT_SIZE) { images.readUnsignedByte() / 255f }
+            LabeledData(data, label)
         }
     }
 
