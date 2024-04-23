@@ -18,7 +18,8 @@ object MNIST {
     const val INPUT_SIZE = SIZE * SIZE
     const val OUTPUT_SIZE = 10
 
-    private val outputArrays = Array(OUTPUT_SIZE) { label -> FloatArray(OUTPUT_SIZE) { if (it == label) 1f else 0f } }
+    val outputArrays =
+        Array(OUTPUT_SIZE) { label -> FloatArray(OUTPUT_SIZE) { index -> if (index == label) 1f else 0f } }
 
     val training
             by lazy { read("data/train-images.idx3-ubyte", "data/train-labels.idx1-ubyte") }
