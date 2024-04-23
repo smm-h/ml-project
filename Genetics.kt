@@ -1,28 +1,23 @@
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.io.path.Path
-import kotlin.io.path.pathString
 import kotlin.math.pow
 
-object Genetics {
-    private val dateFormat = SimpleDateFormat("YYYYMMDD_hhmmss")
+@Suppress("MemberVisibilityCanBePrivate", "CanBeParameter", "unused", "KotlinConstantConditions")
+class Genetics(
+    val dateFormat: DateFormat = SimpleDateFormat("YYYYMMDD_hhmmss"),
+    val seed: Long = (Math.random() * Long.MAX_VALUE).toLong(),
+) {
 
     val startDate = Date()
     val timestamp: String = dateFormat.format(startDate)
-    val path: Path = Path("experiments/$timestamp")
-    val logFile: File = File("${path.pathString}/log.txt")
-
-    // TODO last experiment
-
-    init {
-        Files.createDirectory(path)
-        File("experiments/list.txt").appendText("$timestamp\n")
-        log("EXPERIMENT STARTED AT: $timestamp")
-        logSeparator()
-    }
+    val path = "experiments/$timestamp"
+    val logFile = File("$path/log.txt")
+    fun timeElapsed() = Date().time - startDate.time
 
     fun log(string: String) {
         println(string)
@@ -32,16 +27,15 @@ object Genetics {
     fun logSeparator() =
         log("--------------------------------")
 
-
-    fun finish() {
+    init {
+        Files.createDirectory(Path(path))
+        File("experiments/list.txt").appendText("$timestamp\n")
+        log("EXPERIMENT STARTED AT: $timestamp")
         logSeparator()
-        log("EXPERIMENT FINISHED IN $timeElapsed ms")
     }
 
-    val timeElapsed: Long get() = Date().time - startDate.time
-
-    private val hiddenLayerSizes = listOf(16, 16)
-    private val random = Random()
+    private val hiddenLayerSizes = listOf(16, 16) // (800) //
+    private val random = Random(seed)
 
     fun createEmptyModel(): MultilayerPerceptron =
         MultilayerPerceptron.create(
@@ -69,21 +63,17 @@ object Genetics {
         var rank: Float = 0f
     )
 
-    @JvmStatic
-    fun main(args: Array<String>) {
-
-        val seed = (Math.random() * Long.MAX_VALUE).toLong()
-        val random = Random(seed)
+    fun run() {
         log("Random number generator seed: $seed")
 
-        val data = MNIST.testing
+        val data = MNIST.testing.slice(0 until 1000)
         val dataSize = data.size
         log("Data: MNIST.TESTING_DATASET, size: $dataSize")
 
         val populationSize = (2.0).pow(8).toInt()
         log("Population: $populationSize")
 
-        val mutationProbability = 0.02f
+        val mutationProbability = 0.01f
         log("Mutation probability: $mutationProbability")
 
 //        val noMutationRate = 0.1f
@@ -91,11 +81,14 @@ object Genetics {
 //        val mutationSize = populationSize - noMutationSize
 //        log("No mutation: ${noMutationRate * 100}% = $noMutationSize")
 
-        val previousBest = MultilayerPerceptron.readFromFile(modelFilename("202404111_070518"))
+//        val previousBest = MultilayerPerceptron.readFromFile(modelFilename("202404111_070518"))
 
-        val population = Array(populationSize) { RankedModel(previousBest) } // createRandomModel()
+        val population = Array(populationSize) {
+//            RankedModel(previousBest)
+            RankedModel(createRandomModel())
+        }
 
-        val selectionRate = 0.2f
+        val selectionRate = 0.0f
         val selectionSize = (populationSize * selectionRate).toInt().coerceAtLeast(2)
         val selectionSlice = 0 until selectionSize
         log("Parents: ${selectionRate * 100}% = $selectionSize")
@@ -104,21 +97,23 @@ object Genetics {
         var lastSavedAt = 0L
         log("Save: every ${saveEvery / 1000L} seconds")
 
+        val logEvery = 1
+        log("Log: every $logEvery generations")
+
+        val plotEvery = 1
+        log("Plot: every $plotEvery generations")
+
         fun save() {
 //            population.slice(selectionSlice).forEachIndexed { i, p ->
-//                p.model.writeToFile(path.pathString + "/$i." + MultilayerPerceptron.FILE_EXT)
+//                p.model.writeToFile(path + "/$i." + MultilayerPerceptron.FILE_EXT)
 //            }
-            population[0].model.writeToFile(path.pathString + "/0." + MultilayerPerceptron.FILE_EXT)
+            population[0].model.writeToFile(path + "/0." + MultilayerPerceptron.FILE_EXT)
             logSeparator()
             log("Saved!")
-            lastSavedAt = timeElapsed
+            lastSavedAt = timeElapsed()
         }
 
-        val stats = Stats(
-            findMin = true,
-            findMax = true,
-            findAverage = true,
-        )
+        val stats = Stats.Floats()
 
         println("Press Enter to continue...")
         readln()
@@ -130,8 +125,14 @@ object Genetics {
 
         while (true) {
 
-            logSeparator()
-            log("Generation: #${generation++}")
+            val logging = generation % logEvery == 0
+
+            if (logging) {
+                logSeparator()
+                log("Generation: #$generation")
+            }
+
+            generation++
 
             for (p in population) {
                 val model = p.model
@@ -146,28 +147,34 @@ object Genetics {
 
                 val accuracy = successful * 100f / dataSize
 
-                stats.check(accuracy.toDouble())
+                stats.check(accuracy)
 
                 p.rank = -accuracy
             }
 
-            log(stats.getSummary())
-            plotData.appendText("$generation,$timeElapsed,${stats.average},${stats.min},${stats.max}\n")
-            stats.clear()
+            if (logging) {
+                log("[Average: ${stats.average}, Min: ${stats.min}, Max: ${stats.max}]")
+            }
+
+            if (generation % plotEvery == 0) {
+                plotData.appendText("$generation,${timeElapsed()},${stats.average},${stats.min},${stats.max}\n")
+                stats.clear()
+            }
 
             population.sortBy(RankedModel::rank)
 
-            if (timeElapsed - lastSavedAt >= saveEvery) save()
+            if (timeElapsed() - lastSavedAt >= saveEvery) save()
 
             val selection = population.slice(selectionSlice).map(RankedModel::model)
 
             population.forEachIndexed { i, p ->
                 if (i > 0)
-//                    val m = if (i > noMutationSize) (i - noMutationSize).toFloat() / mutationSize else 0f
                     p.model = createEmptyModel().apply { populate(selection, random, mutationProbability) }
             }
         }
 
-        // TODO save() finish()
+        // TODO save()
+        // store this and seed
+//        log("EXPERIMENT FINISHED IN {$timeElapsed()} ms")
     }
 }
