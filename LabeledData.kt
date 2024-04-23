@@ -1,0 +1,1 @@
+class LabeledData(val data: FloatArray, val label: Int)

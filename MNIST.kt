@@ -20,18 +20,6 @@ object MNIST {
 
     private val outputArrays = Array(OUTPUT_SIZE) { label -> FloatArray(OUTPUT_SIZE) { if (it == label) 1f else 0f } }
 
-    /**
-     * An [MNIST] [Datapoint] is a 28 by 28 grayscale drawing of a decimal
-     * digit, compiled by NIST during the 1970s. It has [data] as a [FloatArray]
-     * of size [INPUT_SIZE] (28x28=784), and an integer [label] from 0 to 9,
-     * indicating which digit it represents.
-     */
-    class Datapoint(val label: Int) {
-        val data = FloatArray(INPUT_SIZE)
-
-        val asOutputArray: FloatArray get() = outputArrays[label]
-    }
-
     val training
             by lazy { read("data/train-images.idx3-ubyte", "data/train-labels.idx1-ubyte") }
     val testing
