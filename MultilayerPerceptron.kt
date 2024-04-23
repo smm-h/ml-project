@@ -41,7 +41,7 @@ class MultilayerPerceptron private constructor(
     }
 
     private fun randomNeuron(size: Int, random: Random) =
-        Neuron(FloatArray(size) { random.nextFloat(2f) - 1 }, 0f)
+        Neuron(FloatArray(size) { random.nextFloat(2f) - 1 }, 1f) // random.nextFloat(200f) - 100f
 
     fun randomize(random: Random) {
         for (l in layers.indices) {
