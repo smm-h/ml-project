@@ -3,6 +3,7 @@ import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.extension
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 /**
  * [Wikipedia](https://en.wikipedia.org/wiki/Multilayer_perceptron)
@@ -34,14 +35,27 @@ class MultilayerPerceptron private constructor(
 
         fun forwardPropagate(input: FloatArray) =
             FloatArray(neurons.size) { activationFunction(neurons[it].calculate(input)) }
+
+        override fun equals(other: Any?): Boolean =
+            other is Layer && activationFunction == other.activationFunction && neurons.contentEquals(other.neurons)
     }
 
-    private class Neuron(val weights: FloatArray, val bias: Float) {
-        fun calculate(input: FloatArray): Float = weights.indices.fold(bias) { sum, i -> sum + input[i] * weights[i] }
+    private class Neuron(val bias: Float, val weights: FloatArray) {
+        fun calculate(input: FloatArray): Float =
+            weights.indices.fold(bias) { sum, i -> sum + input[i] * weights[i] }
+
+        override fun equals(other: Any?): Boolean =
+            other is Neuron && bias == other.bias && weights.contentEquals(other.weights)
+
+        override fun hashCode(): Int =
+            bias.hashCode() xor weights.contentHashCode()
     }
 
     private fun randomNeuron(size: Int, random: Random) =
-        Neuron(FloatArray(size) { random.nextFloat(2f) - 1 }, 1f) // random.nextFloat(200f) - 100f
+        Neuron(
+            random.nextFloat(1 + sqrt(size.toFloat())),
+            FloatArray(size) { random.nextFloat(2f) - 1 },
+        )
 
     fun randomize(random: Random) {
         for (l in layers.indices) {
@@ -151,6 +165,12 @@ class MultilayerPerceptron private constructor(
         }
     }
 
+    override fun hashCode(): Int =
+        blueprint.hashCode()
+
+    override fun equals(other: Any?): Boolean =
+        other is MultilayerPerceptron && blueprint == other.blueprint && layers.contentEquals(other.layers)
+
     companion object {
         const val FILE_EXT = "mlp"
 
@@ -159,7 +179,7 @@ class MultilayerPerceptron private constructor(
         private const val MAX_LAYER_SIZE = Int.MAX_VALUE
         private const val MAX_HIDDEN_LAYER_COUNT = Int.MAX_VALUE
 
-        private val PLACEHOLDER_NEURON = Neuron(FloatArray(0), 0f)
+        private val PLACEHOLDER_NEURON = Neuron(0f, FloatArray(0))
 
         private enum class OutputType { STRUCTURE, BLUEPRINT, MODEL }
 
@@ -200,13 +220,10 @@ class MultilayerPerceptron private constructor(
                 val model = blueprint.instantiate()
 
                 model.layers.forEach { layer ->
-                    val neuronsArray = layer.neurons
-                    assert(s.readInt() == layer.size)
-                    for (i in neuronsArray.indices) {
-                        val bias = s.readFloat()
-                        val weightsSize = s.readInt()
-                        val weights = FloatArray(weightsSize) { s.readFloat() }
-                        neuronsArray[i] = Neuron(weights, bias)
+                    val a = layer.neurons
+                    assert(s.readInt() == a.size)
+                    for (i in a.indices) {
+                        a[i] = Neuron(s.readFloat(), FloatArray(s.readInt()) { s.readFloat() })
                     }
                 }
 
