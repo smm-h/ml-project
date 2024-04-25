@@ -1,6 +1,7 @@
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.MessageDigest
+import kotlin.math.roundToInt
 
 
 object Util {
@@ -52,4 +53,7 @@ object Util {
         }
         return "${String.format("%.2f", s)} ${fileSizeUnitsBase10[u]}"
     }
+
+    fun formatPercentage(x: Float): String =
+        ((x * 100000).roundToInt() / 1000f).toString() + "%"
 }

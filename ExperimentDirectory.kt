@@ -1,3 +1,4 @@
+import Util.formatPercentage
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
@@ -45,7 +46,7 @@ class ExperimentDirectory(
             total++
         }
 
-        println("$successful/$total = ${successful * 100f / total}%")
+        println("$successful/$total = ${formatPercentage(successful.toFloat() / total)}")
         println("Average successful loss: ${loss / successful}")
     }
 

@@ -1,3 +1,4 @@
+import Util.formatPercentage
 import java.io.File
 import java.nio.file.Files
 import java.text.DateFormat
@@ -75,7 +76,7 @@ class Experiment(
         val parentsSlice = 0 until parentsCount
         log("Only the top $parentsCount get to reproduce")
 
-        log("Mutation probability: ${mutationProbability * 100}%")
+        log("Mutation probability: ${formatPercentage(mutationProbability)}")
 
 //        val previousBest = MultilayerPerceptron.readFromFile(modelFilename("202404111_070518"))
         val population = Array(populationSize) {
