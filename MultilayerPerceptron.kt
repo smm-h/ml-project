@@ -38,6 +38,9 @@ class MultilayerPerceptron private constructor(
 
         override fun equals(other: Any?): Boolean =
             other is Layer && activationFunction == other.activationFunction && neurons.contentEquals(other.neurons)
+
+        override fun hashCode(): Int =
+            neurons.contentHashCode() xor activationFunction.hashCode()
     }
 
     private class Neuron(val bias: Float, val weights: FloatArray) {

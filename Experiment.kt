@@ -17,6 +17,7 @@ class Experiment(
     logFilename: String = "log.txt",
     plotFilename: String = "plot.csv",
     private val populationSize: Int,
+    private val parentsCount: Int,
     private val mutationProbability: Float,
     private val maxGeneration: Int = -1,
     private val saveEvery: Long = 30000L,
@@ -70,10 +71,9 @@ class Experiment(
         log("MLP structure: ${blueprint.structure}")
         log("MLP file size: ${Util.formatFileSizeBase2(blueprint.fileSizeExact)}")
 
-        val parentsRatio = 0.2
-        val parentsCount = (parentsRatio * populationSize).toInt().coerceAtLeast(1)
+        assert(parentsCount >= 1)
         val parentsSlice = 0 until parentsCount
-        log("Only the top ${parentsRatio * 100}% (=$parentsCount) get to reproduce")
+        log("Only the top $parentsCount get to reproduce")
 
         log("Mutation probability: ${mutationProbability * 100}%")
 
