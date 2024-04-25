@@ -154,7 +154,7 @@ class MultilayerPerceptron private constructor(
     companion object {
         const val FILE_EXT = "mlp"
 
-        private const val MAGIC_NUMBER = 30489 // 6519 (7719)
+        private const val MAGIC_NUMBER = 30489 // 7719 ~= MLP
         private const val VERSION_NUMBER = 1
         private const val MAX_LAYER_SIZE = Int.MAX_VALUE
         private const val MAX_HIDDEN_LAYER_COUNT = Int.MAX_VALUE
@@ -190,8 +190,8 @@ class MultilayerPerceptron private constructor(
                         ?: throw UnsupportedOperationException("Invalid activation function: '$name'")
                 }
 
-                val outputLayerActivationFunction = activationFunctions[s.readInt()]
                 val hiddenLayerActivationFunctions = List(hiddenLayerCount) { activationFunctions[s.readInt()] }
+                val outputLayerActivationFunction = activationFunctions[s.readInt()]
 
                 val blueprint = Blueprint(structure, outputLayerActivationFunction, hiddenLayerActivationFunctions)
                 if (outputType == OutputType.BLUEPRINT)
@@ -201,6 +201,7 @@ class MultilayerPerceptron private constructor(
 
                 model.layers.forEach { layer ->
                     val neuronsArray = layer.neurons
+                    assert(s.readInt() == layer.size)
                     for (i in neuronsArray.indices) {
                         val bias = s.readFloat()
                         val weightsSize = s.readInt()
@@ -238,7 +239,6 @@ class MultilayerPerceptron private constructor(
                 s.writeBytes(it.name)
             }
 
-            s.writeInt(activationFunctions.indexOf(layers.last().activationFunction))
             layers.forEach {
                 s.writeInt(activationFunctions.indexOf(it.activationFunction))
             }

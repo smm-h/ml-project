@@ -24,8 +24,8 @@ struct MultilayerPerceptron {
     u32 hiddenLayerSizes[hiddenLayerCount];
     u32 activationFunctionsCount;
     ActivationFunction activationFunctions[activationFunctionsCount];
-    u32 outputLayerActivationFunctionId;
     u32 hiddenLayerActivationFunctionIds[hiddenLayerCount];
+    u32 outputLayerActivationFunctionId;
     Layer hiddenLayers[hiddenLayerCount];
     Layer outputLayer;
 };
