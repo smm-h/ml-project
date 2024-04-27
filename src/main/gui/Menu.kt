@@ -1,5 +1,6 @@
 package src.main.gui
 
+import MultilayerPerceptron
 import java.awt.event.KeyEvent
 import javax.swing.*
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -27,8 +28,8 @@ object Menu {
                         fileChooser.fileFilter = FileNameExtensionFilter("Multilayer Perceptron (*.mlp)", "mlp")
                         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                             val file = fileChooser.selectedFile
-                            GUI.INSTANCE.tabs
-                            // load from file
+                            val model = MultilayerPerceptron.readModel(file.absolutePath)
+                            GUI.INSTANCE.tabs.addTab(file.name, MLPUI(model.structure))
                         }
                     }
                 })
