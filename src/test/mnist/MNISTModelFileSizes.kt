@@ -1,4 +1,7 @@
+package src.test.mnist
+
 import MultilayerPerceptron.Structure
+import util.Util
 
 object MNISTModelFileSizes {
     @JvmStatic

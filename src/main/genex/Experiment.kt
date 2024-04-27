@@ -1,4 +1,10 @@
-import Util.formatPercentage
+package src.main.genex
+
+import LabeledData
+import MultilayerPerceptron
+import util.Stats
+import util.Util
+import util.Util.formatPercentage
 import java.io.File
 import java.nio.file.Files
 import java.text.DateFormat

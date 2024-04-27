@@ -1,4 +1,7 @@
-import Util.formatPercentage
+package src.test.mlp
+
+import src.main.mnist.MNIST
+import util.Util.formatPercentage
 import kotlin.math.abs
 
 object DiversityMeasurer {

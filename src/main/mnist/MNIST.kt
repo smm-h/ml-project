@@ -1,11 +1,14 @@
-import MNIST.testing
-import MNIST.training
+package src.main.mnist
+
+import LabeledData
+import src.main.mnist.MNIST.testing
+import src.main.mnist.MNIST.training
 import java.io.BufferedInputStream
 import java.io.DataInputStream
 import java.io.FileInputStream
 
 /**
- * MNIST (Modified NIST) is a dataset of 28x28 grayscale images of handwritten
+ * mnist.MNIST (Modified NIST) is a dataset of 28x28 grayscale images of handwritten
  * digits, remixed from the original dataset created in 1994. It contains
  * 60,000 [training] images and 10,000 [testing] images.
  *

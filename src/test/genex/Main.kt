@@ -1,12 +1,15 @@
+package src.test.genex
+
 import ActivationFunction.Companion.CAPPED_RELU
 import ActivationFunction.Companion.RELU
-import ExperimentDirectory.Companion.defaultDirectory
-import MNIST.INPUT_SIZE
-import MNIST.OUTPUT_SIZE
-import MNIST.determineLabel
-import MNIST.training
 import MultilayerPerceptron.Blueprint
 import MultilayerPerceptron.Structure
+import src.main.genex.Experiment
+import src.main.genex.ExperimentDirectory.Companion.defaultDirectory
+import src.main.mnist.MNIST.INPUT_SIZE
+import src.main.mnist.MNIST.OUTPUT_SIZE
+import src.main.mnist.MNIST.determineLabel
+import src.main.mnist.MNIST.training
 
 object Main {
     @JvmStatic

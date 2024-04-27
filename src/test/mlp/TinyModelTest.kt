@@ -1,3 +1,5 @@
+package src.test.mlp
+
 import ActivationFunction.Companion.RELU
 import MultilayerPerceptron.Blueprint
 import MultilayerPerceptron.Companion.readModel

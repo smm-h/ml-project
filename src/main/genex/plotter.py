@@ -1,10 +1,9 @@
-from math import sqrt, ceil
 import matplotlib.pyplot as plt
+from math import sqrt, ceil
 
 
 def get_plot_data(timestamp):
-
-    filename = "experiments/"+timestamp+"/plot.csv"
+    filename = "experiments/" + timestamp + "/plot.csv"
 
     plot_data = {
         "Generation": [],
@@ -15,7 +14,6 @@ def get_plot_data(timestamp):
     }
 
     with open(filename) as f:
-
         f.readline()  # skip header
 
         for line in f:
@@ -29,7 +27,7 @@ def get_plot_data(timestamp):
     return plot_data
 
 
-with open("experiments/index.txt") as f:
+with open("../experiments/index.txt") as f:
     all_timestamps = [i.strip() for i in f]
 
 last_count = 1
