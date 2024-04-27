@@ -1,4 +1,4 @@
-package util
+package src.main.util
 
 import kotlin.math.max
 import kotlin.math.min

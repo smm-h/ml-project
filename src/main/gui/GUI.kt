@@ -1,46 +1,51 @@
-package src.main.gui;
+package src.main.gui
+
+import src.main.util.Util.by
+import javax.swing.*
 
 
-import javax.swing.*;
-import java.awt.*;
+@Suppress("MemberVisibilityCanBePrivate", "unused")
+class GUI {
+    val tree = JTree()
+    val treePanel = JPanel()
+    val tabs = JTabbedPane()
+    val tabsPanel = JPanel()
+    val split = JSplitPane()
+    val panel = JPanel()
+    val frame = JFrame("Neurarium").apply {
+        isLocationByPlatform = true
+        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+        jMenuBar = Menu.jMenuBar
+    }
 
-public class MainWindow {
-    private final JFrame frame = new JFrame("MainWindow");
-    private final JMenuBar menuBar = Menu.INSTANCE.getJMenuBar();
+    private val installedSkins: Map<String, String> by lazy {
+        UIManager.getInstalledLookAndFeels()
+            .map { it.className }
+            .associateBy { it.slice(it.lastIndexOf(".") + 1..it.length - 12) }
+    }
 
-    private JPanel panel;
-    private JSplitPane split;
-    private JPanel treePanel;
-    private JTree tree;
-    private JPanel tabsPanel;
-    private JTabbedPane tabs;
-
-    public static void main(String[] args) {
+    init {
         try {
-            /*
-             * javax.swing.plaf.metal.MetalLookAndFeel
-             * javax.swing.plaf.nimbus.NimbusLookAndFeel
-             * com.sun.java.swing.plaf.motif.MotifLookAndFeel
-             * com.sun.java.swing.plaf.windows.WindowsLookAndFeel
-             * com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel
-             */
-//            for (UIManager.LookAndFeelInfo i : UIManager.getInstalledLookAndFeels())
-//                System.out.println(i.getClassName());
-//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            UIManager.setLookAndFeel(installedSkins["Nimbus"])
+        } catch (_: Exception) {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+            } catch (_: Exception) {
+            }
         }
-        MainWindow mainWindow = new MainWindow();
-//        new FontUIResource(new Font("Arial", Font.BOLD, 20));
-//        mainWindow.tree.putClientProperty("JComponent.sizeVariant", "large");
-        mainWindow.panel.setMinimumSize(new Dimension(640, 480));
-        mainWindow.frame.setContentPane(mainWindow.panel);
-        mainWindow.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainWindow.frame.setSize(640, 480);
-        mainWindow.frame.setLocationByPlatform(true);
-//        mainWindow.frame.pack();
-        mainWindow.frame.setVisible(true);
-        mainWindow.frame.setJMenuBar(mainWindow.menuBar);
+        frame.contentPane = panel
+    }
+
+    companion object {
+        val INSTANCE by lazy { GUI() }
+
+        @JvmStatic
+        fun main(args: Array<String>) {
+            INSTANCE.frame.apply {
+                size = 640 by 480
+                isVisible = true
+                pack()
+            }
+        }
     }
 }

@@ -3,7 +3,7 @@ package src.main.genex
 import LabeledData
 import MultilayerPerceptron
 import src.main.mnist.MNIST
-import util.Util.formatPercentage
+import src.main.util.Util.formatPercentage
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path

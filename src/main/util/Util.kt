@@ -1,5 +1,6 @@
-package util
+package src.main.util
 
+import java.awt.Dimension
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.MessageDigest
@@ -58,4 +59,7 @@ object Util {
 
     fun formatPercentage(x: Float): String =
         ((x * 100000).roundToInt() / 1000f).toString() + "%"
+
+    infix fun Int.by(that: Int) =
+        Dimension(this, that)
 }

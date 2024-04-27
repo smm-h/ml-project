@@ -2,6 +2,7 @@ package src.main.gui
 
 import java.awt.event.KeyEvent
 import javax.swing.*
+import javax.swing.filechooser.FileNameExtensionFilter
 
 
 object Menu {
@@ -19,11 +20,14 @@ object Menu {
             })
             add(JMenu("Open").apply {
                 this.mnemonic = KeyEvent.VK_O
+                // TODO ctrl+O
                 add(JMenuItem("Multilayer Perceptron").apply {
                     addActionListener {
                         val fileChooser = JFileChooser()
+                        fileChooser.fileFilter = FileNameExtensionFilter("Multilayer Perceptron (*.mlp)", "mlp")
                         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                             val file = fileChooser.selectedFile
+                            GUI.INSTANCE.tabs
                             // load from file
                         }
                     }
