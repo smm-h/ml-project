@@ -12,6 +12,7 @@ class MultilayerPerceptron private constructor(
     val blueprint: Blueprint,
     private val layers: Array<Layer>,
 ) {
+    val structure: Structure get() = blueprint.structure
     val inputSize: Int get() = blueprint.structure.inputSize
     val outputSize: Int get() = blueprint.structure.outputSize
 
