@@ -29,11 +29,14 @@ def get_plot_data(timestamp):
     return plot_data
 
 
-with open("experiments/list.txt") as f:
+with open("experiments/index.txt") as f:
     all_timestamps = [i.strip() for i in f]
 
-# ["202404111_070518", "202404112_012337"]
-selected_timestamps = [all_timestamps[-1]]  # [-1-(3)**2:-1]
+last_count = 1
+
+selected_timestamps = all_timestamps[-last_count:None]
+
+print(*selected_timestamps, sep="\n")
 
 n = len(selected_timestamps)
 
@@ -50,7 +53,7 @@ for i in range(n):
             part = part[i % side]
     try:
         data = get_plot_data(t)
-        x = data["TimeElapsed"]
+        x = data["Generation"]
         part.plot(x, data["Average"], "b")
         part.plot(x, data["Min"], "r")
         part.plot(x, data["Max"], "g")

@@ -76,8 +76,8 @@ object MNIST {
      */
     fun determineLabel(
         output: FloatArray,
-        atLeast: Float = 0.8f,
-        atMost: Float = 0.6f,
+        atLeast: Float = 0.9f,
+        atMost: Float = 0.5f,
     ): Int {
         var label = -1
         for (i in output.indices) {

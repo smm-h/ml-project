@@ -4,8 +4,9 @@ import kotlin.math.abs
 object DiversityMeasurer {
     @JvmStatic
     fun main(args: Array<String>) {
-        val data = MNIST.testing.slice(0 until 25)
-        val n = data.size
+        val n = 1000
+//        for (n in listOf(1, 5, 10, 25, 50, 100, 200, 500, 1000, 2000, 5000, 10000)) {
+        val data = MNIST.training.slice(0 until n)
         val expectedRatio = 1f / MNIST.OUTPUT_SIZE
         val expectedLabels = (0 until MNIST.OUTPUT_SIZE)
         val labels = mutableMapOf<Int, Int>()
@@ -26,9 +27,13 @@ object DiversityMeasurer {
                 val label = it.second
                 val ratio = count.toFloat() / n
                 val offset = ratio - expectedRatio
-                offsets += abs(offset) * label.size
+                offsets += abs(offset) * label.size * count
                 println("${formatPercentage(ratio)} \t ${formatPercentage(offset)}: \t $label")
             }
 
+//            val y = offsets / n
+
+//            println("$n: \t $y")
+//        }
     }
 }

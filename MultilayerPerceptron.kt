@@ -3,7 +3,6 @@ import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.extension
 import kotlin.math.pow
-import kotlin.math.sqrt
 
 /**
  * [Wikipedia](https://en.wikipedia.org/wiki/Multilayer_perceptron)
@@ -56,7 +55,7 @@ class MultilayerPerceptron private constructor(
 
     private fun randomNeuron(size: Int, random: Random) =
         Neuron(
-            random.nextFloat(1 + sqrt(size.toFloat())),
+            1f, // 1f + random.nextFloat(sqrt(size.toFloat())),
             FloatArray(size) { random.nextFloat(2f) - 1 },
         )
 

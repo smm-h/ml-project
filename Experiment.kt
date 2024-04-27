@@ -6,13 +6,13 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.io.path.Path
 
-@Suppress("unused", "KotlinConstantConditions")
+@Suppress("unused", "CanBeParameter")
 class Experiment(
     private val directory: ExperimentDirectory,
     private val data: List<LabeledData>,
     private val blueprint: MultilayerPerceptron.Blueprint,
     private val labeler: (FloatArray) -> Int,
-    private val seed: Long = (Math.random() * Long.MAX_VALUE).toLong(),
+    private val seed: Long,
     private val logToFile: Boolean = true,
     private val printLog: Boolean = true,
     logFilename: String = "log.txt",
@@ -93,8 +93,6 @@ class Experiment(
 
         val stats = Stats.Floats()
 
-        println("Press Enter to start...")
-        readln()
 
         logSeparator()
         log("EXPERIMENT STARTED")
