@@ -76,10 +76,7 @@ class MultilayerPerceptronView(
                 val ry: Float = e.y - (height - l.vSize) / 2
                 if (rx >= 0 && rx <= l.hSize &&
                     ry >= 0 && ry <= l.vSize
-                ) {
-                    isLeftMouseButtonDown = true
-                    println("PRESSED")
-                }
+                ) isLeftMouseButtonDown = true
             }
         }
 
@@ -87,7 +84,6 @@ class MultilayerPerceptronView(
             if (isLeftMouseButtonDown && e != null && e.button == MouseEvent.BUTTON1) {
                 isLeftMouseButtonDown = false
                 forwardPropagate()
-                println("RELEASED")
             }
         }
 
@@ -109,7 +105,15 @@ class MultilayerPerceptronView(
                                 val i = (rx / l.cellSize).toInt()
                                 val j = (ry / l.cellSize).toInt()
                                 val sgn = if (isControlDown) -1 else +1
-                                l[i, j] = (l[i, j] + sgn * 0.3f).coerceIn(0f, 1f)
+                                l[i + 1, j] += sgn * 0.4f
+                                l[i - 1, j] += sgn * 0.4f
+                                l[i, j + 1] += sgn * 0.4f
+                                l[i, j + 1] += sgn * 0.4f
+                                l[i + 1, j - 1] += sgn * 0.2f
+                                l[i - 1, j - 1] += sgn * 0.2f
+                                l[i - 1, j + 1] += sgn * 0.2f
+                                l[i + 1, j + 1] += sgn * 0.2f
+                                l[i, j] += sgn * 0.8f
                                 refresh()
                             }
                         }

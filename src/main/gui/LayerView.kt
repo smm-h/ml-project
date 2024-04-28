@@ -57,7 +57,7 @@ interface LayerView : Iterable<Int> {
 
     interface Column : LayerView {
         operator fun set(i: Int, v: Float) {
-            data[i] = v
+            data[i] = v.coerceIn(0f, 1f)
         }
 
         operator fun get(i: Int): Float = data[i]
@@ -70,7 +70,7 @@ interface LayerView : Iterable<Int> {
             get() = hCellCount * vCellCount
 
         operator fun set(i: Int, j: Int, v: Float) {
-            data[i + j * hCellCount] = v
+            data[i + j * hCellCount] = v.coerceIn(0f, 1f)
         }
 
         operator fun get(i: Int, j: Int): Float = data[i + j * hCellCount]
