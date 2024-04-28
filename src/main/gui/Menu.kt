@@ -3,6 +3,7 @@ package src.main.gui
 import MultilayerPerceptron
 import java.awt.event.KeyEvent
 import javax.swing.*
+import javax.swing.JOptionPane.showMessageDialog
 import javax.swing.filechooser.FileNameExtensionFilter
 
 
@@ -73,7 +74,7 @@ object Menu {
             this.mnemonic = KeyEvent.VK_H
             add(JMenuItem("About").apply {
                 addActionListener {
-                    JOptionPane.showMessageDialog(null, "By SMMH");
+                    showMessageDialog(null, "By SMMH")
                 }
             })
         })

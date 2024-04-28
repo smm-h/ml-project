@@ -2,18 +2,51 @@ package src.main.gui
 
 import ActivationFunction.Companion.RELU
 import MultilayerPerceptron
+import com.formdev.flatlaf.FlatLightLaf
 import src.main.util.Util.by
+import java.awt.Component
 import java.awt.GridLayout
 import java.util.*
 import javax.swing.*
+import javax.swing.JOptionPane.showMessageDialog
+import javax.swing.tree.DefaultMutableTreeNode
+import javax.swing.tree.DefaultTreeCellRenderer
+import javax.swing.tree.DefaultTreeModel
+import javax.swing.tree.TreeModel
 
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class GUI {
-    val tree = JTree().apply {
+    private object CustomCellRenderer : DefaultTreeCellRenderer() {
+        override fun getTreeCellRendererComponent(
+            tree: JTree?,
+            value: Any?,
+            sel: Boolean,
+            expanded: Boolean,
+            leaf: Boolean,
+            row: Int,
+            hasFocus: Boolean
+        ): Component {
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus)
+            icon = UIManager.getIcon("FileView.directoryIcon")
+            return this
+        }
+    }
 
+    val root = DefaultMutableTreeNode("Root").apply {
+        this.add(DefaultMutableTreeNode("Example"))
+    }
+    val treeModel: TreeModel = DefaultTreeModel(root)
+    val tree = JTree(treeModel).apply {
+        cellRenderer = CustomCellRenderer
     }
     val treePanel = JPanel(GridLayout()).apply {
+//        tree.isRootVisible = false
+        tree.addTreeSelectionListener {
+            if (it.isAddedPath) {
+                showMessageDialog(null, it.path)
+            }
+        }
         add(tree)
     }
     val tabs = JTabbedPane().apply {
@@ -42,21 +75,6 @@ class GUI {
             .associateBy { it.slice(it.lastIndexOf(".") + 1..it.length - 12) }
     }
 
-    var skin: String = DEFAULT_SKIN_NAME
-        set(value) {
-            try {
-                UIManager.setLookAndFeel(installedSkins[value])
-                field = value
-            } catch (_: Exception) {
-                try {
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
-                    field = DEFAULT_SKIN_NAME
-                } catch (_: Exception) {
-                }
-            }
-            SwingUtilities.updateComponentTreeUI(frame);
-        }
-
     companion object {
         private const val DEFAULT_SKIN_NAME = "Default"
 
@@ -65,12 +83,14 @@ class GUI {
         @JvmStatic
         fun main(args: Array<String>) {
 
+            FlatLightLaf.setup()
+
             val structure = MultilayerPerceptron.Structure(10, 10, listOf(10))
             val blueprint = MultilayerPerceptron.Blueprint(structure, RELU, listOf(RELU))
             val model = blueprint.instantiate().also { it.randomize(Random()) }
 
             INSTANCE.apply {
-                skin = "Nimbus"
+                UIManager.setLookAndFeel(FlatLightLaf())
                 tabs.addTab("new-tab", MLPUI(model))
                 frame.apply {
                     preferredSize = 640 by 480
