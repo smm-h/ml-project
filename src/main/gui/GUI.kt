@@ -21,23 +21,13 @@ class GUI {
     val tree = JTree().apply {
     }
     val treePanel = JPanel(GridLayout()).apply {
-//        FlatLightLaf.initIconColors()
-//        tree.putClientProperty("Tree.background", "#ff0000")
-//        tree.putClientProperty("Tree.background", Color.RED)
-//        tree.putClientProperty("background", "#ff0000")
-//        tree.putClientProperty("background", Color.RED)
-//        tree.putClientProperty("JTree.paintSelection", "true")
-//        tree.putClientProperty("JTree.paintSelection", true)
-//        tree.putClientProperty("Tree.paintSelection", "true")
-//        tree.putClientProperty("Tree.paintSelection", true)
-//        tree.isRootVisible = false
+        tree.isRootVisible = false
 //        tree.addTreeSelectionListener {
 //            if (it.isAddedPath) {
 //                showMessageDialog(null, it.path)
 //            }
 //        }
-//        tree.showsRootHandles = true
-//        tree.putClientProperty("Tree.showDefaultIcons", true)
+        tree.showsRootHandles = true
         add(tree)
     }
     val tabs = JTabbedPane().apply {
@@ -73,7 +63,7 @@ class GUI {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            val structure = MultilayerPerceptron.Structure(10, 10, listOf(10))
+            val structure = MultilayerPerceptron.Structure(17, 10, listOf(10))
             val blueprint = MultilayerPerceptron.Blueprint(structure, RELU, listOf(RELU))
             val model = blueprint.instantiate().also { it.randomize(Random()) }
 

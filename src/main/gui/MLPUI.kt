@@ -80,6 +80,23 @@ class MLPUI(
         }
     }
 
+    fun interface NeuronPainter {
+        fun paintAtNeurons(neuronIndex: Int, x: Int, y: Int)
+    }
+
+    fun paintAtNeurons(layerIndex: Int, neuronPainter: NeuronPainter) {
+        val o = options
+        val layerSize = layerSizes[layerIndex]
+        val x0 = (width - myWidth) / 2
+        val y0 = (height - myHeight) / 2
+        val x = x0 + layerIndex * (o.neuronSize + o.horizontalSep)
+        val curr_y0 = y0 + (myHeight - layerHeights[layerIndex]) / 2
+        for (neuronIndex in 0 until layerSize) {
+            val y = curr_y0 + neuronIndex * (o.neuronSize + o.verticalSep)
+            neuronPainter.paintAtNeurons(neuronIndex, x, y)
+        }
+    }
+
     override fun paintComponent(g: Graphics?) {
         super.paintComponent(g)
         with(options) {
@@ -88,35 +105,21 @@ class MLPUI(
                     RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON
                 )
-                val x0 = (width - myWidth) / 2
-                val y0 = (height - myHeight) / 2
                 for (layerIndex in 1 until n) {
-                    val currLayerSize = layerSizes[layerIndex]
-                    val prevLayerSize = layerSizes[layerIndex - 1]
-                    val x1 = x0 + layerIndex * (neuronSize + horizontalSep) + neuronSize / 2
-                    val x2 = x1 - (neuronSize + horizontalSep)
-                    val curr_y0 = y0 + (myHeight - layerHeights[layerIndex]) / 2
-                    val prev_y0 = y0 + (myHeight - layerHeights[layerIndex - 1]) / 2
-                    for (currNeuronIndex in 0 until currLayerSize) {
-                        val y1 = curr_y0 + currNeuronIndex * (neuronSize + verticalSep) + neuronSize / 2
-                        for (prevNeuronIndex in 0 until prevLayerSize) {
-                            val y2 = prev_y0 + prevNeuronIndex * (neuronSize + verticalSep) + neuronSize / 2
-                            val weight = model.getWeight(layerIndex - 1, currNeuronIndex, prevNeuronIndex)
+                    paintAtNeurons(layerIndex) { i1, x1, y1 ->
+                        paintAtNeurons(layerIndex - 1) { i2, x2, y2 ->
+                            val weight = model.getWeight(layerIndex - 1, i1, i2)
                             color = weightColorizer.colorizeWeight(weight)
-                            drawLine(x1, y1, x2, y2)
+                            drawLine(x1 + neuronSize / 2, y1 + neuronSize / 2, x2 + neuronSize / 2, y2 + neuronSize / 2)
                         }
                     }
                 }
                 for (layerIndex in 0 until n) {
-                    val layerSize = layerSizes[layerIndex]
-                    val x = x0 + layerIndex * (neuronSize + horizontalSep)
-                    val curr_y0 = y0 + (myHeight - layerHeights[layerIndex]) / 2
-                    for (neuronIndex in 0 until layerSize) {
-                        val y = curr_y0 + neuronIndex * (neuronSize + verticalSep)
+                    paintAtNeurons(layerIndex) { _, x, y ->
                         color = Color.WHITE
-                        fillRect(x, y, neuronSize, neuronSize)
-                        color = Color.BLACK
-                        drawRect(x, y, neuronSize, neuronSize)
+                        fillOval(x, y, neuronSize, neuronSize)
+                        color = Color.GRAY
+                        drawOval(x, y, neuronSize, neuronSize)
                     }
                 }
             }
