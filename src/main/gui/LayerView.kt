@@ -67,7 +67,6 @@ interface LayerView : Iterable<Int> {
 
         override fun getCellX(cellIndex: Int) = 0f
         override fun getCellY(cellIndex: Int) = cellIndex * (cellSize + vSep)
-
     }
 
     class DenseColumn(

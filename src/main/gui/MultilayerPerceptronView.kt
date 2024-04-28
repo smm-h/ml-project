@@ -5,7 +5,10 @@ import src.main.util.Util.QUARTER_BLACK
 import src.main.util.Util.by
 import java.awt.*
 import javax.swing.JPanel
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.pow
+import kotlin.math.roundToInt
 
 class MultilayerPerceptronView(
     private val model: MultilayerPerceptron,
@@ -39,7 +42,7 @@ class MultilayerPerceptronView(
     }
 
     private val weightViews = List(n - 1) { i ->
-        WeightView(model, layerViews[i], layerViews[i + 1], 112f)
+        WeightView(i, 2, 1f, 112f, 0.01f)
     }
 
     init {
@@ -80,15 +83,15 @@ class MultilayerPerceptronView(
             arc, arc,
         )
 
-        var prevX: Float
-        var currX = margin
+        var currX: Float
+        var nextX = margin
 
         weightViews.forEachIndexed { index, weightView ->
-            prevX = currX
-            currX += weightView.prevLayer.hSize + weightView.hSize
-            val prevY = (height - weightView.prevLayer.vSize) / 2
-            val currY = (height - weightView.currLayer.vSize) / 2
-            weightView.draw(g, index, prevX, currX, prevY, currY)
+            currX = nextX
+            nextX += weightView.currLayerView.hSize + weightView.hSize
+            val currY = (height - weightView.currLayerView.vSize) / 2
+            val nextY = (height - weightView.nextLayerView.vSize) / 2
+            weightView.draw(g, index, currX, nextX, currY, nextY)
         }
 
         var x0 = margin
@@ -100,31 +103,37 @@ class MultilayerPerceptronView(
         }
     }
 
-    private class WeightView(
-        val model: MultilayerPerceptron,
-        val prevLayer: LayerView,
-        val currLayer: LayerView,
-        val hSize: Float = 112f,
+    private inner class WeightView(
+        val layerIndex: Int,
+        val alphaPower: Int,
+        val alphaFactor: Float,
+        val hSize: Float,
+        val minimumVisibleAlpha: Float,
     ) {
-        val divisor = sqrt((prevLayer.cellCount * currLayer.cellCount).toFloat()) * 0.1f
-        fun colorizeWeight(weight: Float): Color {
-            val v = abs(weight).pow(2) / divisor
-            return if (weight > 0f)
-                Color(0f, 1f, 0f, v) // green
-            else
-                Color(1f, 0f, 0f, v) // red
-        }
+        val currLayerView get() = layerViews[layerIndex]
+        val nextLayerView get() = layerViews[layerIndex + 1]
 
-        fun draw(g: Graphics2D, layerIndex: Int, prevX: Float, currX: Float, prevY: Float, currY: Float) {
-            currLayer.forEach { currNeuron ->
-                prevLayer.forEach { prevNeuron ->
-                    g.color = colorizeWeight(model.getWeight(layerIndex, currNeuron, prevNeuron))
-                    g.drawLine(
-                        (prevX + prevLayer.getCellCenterX(prevNeuron)).roundToInt(),
-                        (prevY + prevLayer.getCellCenterY(prevNeuron)).roundToInt(),
-                        (currX + currLayer.getCellCenterX(currNeuron)).roundToInt(),
-                        (currY + currLayer.getCellCenterY(currNeuron)).roundToInt(),
-                    )
+        private val divisor: Float =
+            (currLayerView.cellCount + nextLayerView.cellCount) / 32f
+
+        fun draw(g: Graphics2D, layerIndex: Int, currX: Float, nextX: Float, currY: Float, nextY: Float) {
+            nextLayerView.forEach { nextNeuron ->
+                currLayerView.forEach { currNeuron ->
+                    val weight = model.getWeight(layerIndex, nextNeuron, currNeuron)
+                    val alpha = (abs(weight).pow(alphaPower) / divisor * alphaFactor).coerceIn(0f, 1f)
+                    if (alpha >= minimumVisibleAlpha) {
+                        g.color =
+                            if (weight > 0f)
+                                Color(0f, 1f, 0f, alpha) // green
+                            else
+                                Color(1f, 0f, 0f, alpha) // red
+                        g.drawLine(
+                            (currX + currLayerView.getCellCenterX(currNeuron)).roundToInt(),
+                            (currY + currLayerView.getCellCenterY(currNeuron)).roundToInt(),
+                            (nextX + nextLayerView.getCellCenterX(nextNeuron)).roundToInt(),
+                            (nextY + nextLayerView.getCellCenterY(nextNeuron)).roundToInt(),
+                        )
+                    }
                 }
             }
         }
