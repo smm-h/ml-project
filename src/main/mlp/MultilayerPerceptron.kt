@@ -54,6 +54,12 @@ class MultilayerPerceptron private constructor(
             bias.hashCode() xor weights.contentHashCode()
     }
 
+    fun getBias(layerIndex: Int, neuronIndex: Int): Float =
+        layers[layerIndex].neurons[neuronIndex].bias
+
+    fun getWeight(layerIndex: Int, neuronIndex: Int, prevNeuronIndex: Int): Float =
+        layers[layerIndex].neurons[neuronIndex].weights[prevNeuronIndex]
+
     private fun randomNeuron(size: Int, random: Random) =
         Neuron(
             1f, // 1f + random.nextFloat(sqrt(size.toFloat())),
