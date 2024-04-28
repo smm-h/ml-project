@@ -2,7 +2,6 @@ package src.main.gui
 
 import MultilayerPerceptron
 import com.formdev.flatlaf.FlatLightLaf
-import src.main.mnist.MNIST
 import src.main.util.Util.by
 import java.awt.GridBagLayout
 import java.awt.GridLayout
@@ -38,7 +37,7 @@ class GUI {
                             val model = MultilayerPerceptron.readModel(file.absolutePath)
                             tabs.addTab(file.name, JPanel(GridBagLayout()).apply {
                                 add(MultilayerPerceptronView(model, 0 to (28 by 28)).apply {
-                                    input = MNIST.training[1].data
+//                                    input =  MNIST.training[1].data
                                 })
                             })
                         }

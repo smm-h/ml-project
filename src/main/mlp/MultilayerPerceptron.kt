@@ -21,6 +21,13 @@ class MultilayerPerceptron private constructor(
         return layers.fold(input) { values, layer -> layer.forwardPropagate(values) }
     }
 
+    fun forwardPropagateAlsoRecord(input: FloatArray): List<FloatArray> {
+        assert(input.size == inputSize)
+        val r = mutableListOf<FloatArray>()
+        layers.fold(input) { values, layer -> layer.forwardPropagate(values).also { r.add(it) } }
+        return r
+    }
+
     fun calculateLoss(actualOutput: FloatArray, expectedOutput: FloatArray): Float {
         assert(actualOutput.size == outputSize)
         assert(expectedOutput.size == outputSize)

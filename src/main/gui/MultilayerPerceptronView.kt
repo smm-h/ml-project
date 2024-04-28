@@ -1,9 +1,10 @@
 package src.main.gui
 
 import MultilayerPerceptron
-import src.main.util.Util.QUARTER_BLACK
 import src.main.util.Util.by
 import java.awt.*
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import javax.swing.JPanel
 import kotlin.math.abs
 import kotlin.math.max
@@ -14,7 +15,7 @@ class MultilayerPerceptronView(
     private val model: MultilayerPerceptron,
     vararg gridLayers: Pair<Int, Dimension>,
 ) : JPanel() {
-    private val margin: Float = 32f
+    private val margin: Float = 2f
     private val gridLayersMap = gridLayers.toMap()
 
     private val n = model.structure.hiddenLayerSizes.size + 2
@@ -23,16 +24,18 @@ class MultilayerPerceptronView(
         get() = layerViews.first().data
         set(value) {
             layerViews.first().data = value
-            output = model.forwardPropagate(value)
-            refresh()
+            forwardPropagate()
         }
 
-    var output: FloatArray
+    val output: FloatArray
         get() = layerViews.last().data
-        set(value) {
-            layerViews.last().data = value
-            refresh()
+
+    private fun forwardPropagate() {
+        model.forwardPropagateAlsoRecord(input).forEachIndexed { index, data ->
+            layerViews[index + 1].data = data
         }
+        refresh()
+    }
 
     private val layerViews = List(n) { i ->
         val s = when (i) {
@@ -43,16 +46,16 @@ class MultilayerPerceptronView(
         val d = gridLayersMap[i]
         if (d == null) {
             if (s > 16)
-                LayerView.DenseColumn(s)
+                LayerView.BigColumn(s)
             else
-                LayerView.Column(s)
+                LayerView.SmallColumn(s)
         } else {
             val w = d.width
             val h = d.height
             if (max(w, h) > 16)
-                LayerView.DenseGrid(w, h)
+                LayerView.BigGrid(w, h)
             else
-                LayerView.Grid(w, h)
+                LayerView.SmallGrid(w, h)
         }
     }
 
@@ -60,8 +63,68 @@ class MultilayerPerceptronView(
         WeightView(i, 2, 1f, 112f, 0.01f)
     }
 
+    private var isLeftMouseButtonDown = false
+    private var isControlDown = false
+    private var mouseX = 0
+    private var mouseY = 0
+
+    val mouseHandler = object : MouseAdapter() {
+        override fun mousePressed(e: MouseEvent?) {
+            if (e != null && e.button == MouseEvent.BUTTON1) {
+                val l = layerViews.first()
+                val rx: Float = e.x - margin
+                val ry: Float = e.y - (height - l.vSize) / 2
+                if (rx >= 0 && rx <= l.hSize &&
+                    ry >= 0 && ry <= l.vSize
+                ) {
+                    isLeftMouseButtonDown = true
+                    println("PRESSED")
+                }
+            }
+        }
+
+        override fun mouseReleased(e: MouseEvent?) {
+            if (isLeftMouseButtonDown && e != null && e.button == MouseEvent.BUTTON1) {
+                isLeftMouseButtonDown = false
+                forwardPropagate()
+                println("RELEASED")
+            }
+        }
+
+        override fun mouseDragged(e: MouseEvent?) {
+            if (e != null) {
+                mouseX = e.x
+                mouseY = e.y
+                isControlDown = e.isControlDown
+
+                if (isLeftMouseButtonDown) {
+                    val l = layerViews.first()
+                    val rx: Float = mouseX - margin
+                    val ry: Float = mouseY - (height - l.vSize) / 2
+                    when (l) {
+                        is LayerView.BigGrid -> {
+                            if (rx >= 0 && rx <= l.hSize &&
+                                ry >= 0 && ry <= l.vSize
+                            ) {
+                                val i = (rx / l.cellSize).toInt()
+                                val j = (ry / l.cellSize).toInt()
+                                val sgn = if (isControlDown) -1 else +1
+                                l[i, j] = (l[i, j] + sgn * 0.3f).coerceIn(0f, 1f)
+                                refresh()
+                            }
+                        }
+
+                        else -> Unit
+                    }
+                }
+            }
+        }
+    }
+
     init {
-        refresh()
+        input = FloatArray(model.inputSize)
+        addMouseListener(mouseHandler)
+        addMouseMotionListener(mouseHandler)
     }
 
     private fun refresh() {
@@ -88,15 +151,15 @@ class MultilayerPerceptronView(
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
-        val k = (margin / 2).roundToInt()
-        val arc = (margin * 2).roundToInt()
-        g.color = QUARTER_BLACK
-        g.drawRoundRect(
-            k, k,
-            (width - margin).roundToInt(),
-            (height - margin).roundToInt(),
-            arc, arc,
-        )
+//        val k = (margin / 2).roundToInt()
+//        val arc = (margin * 2).roundToInt()
+//        g.color = QUARTER_BLACK
+//        g.drawRoundRect(
+//            k, k,
+//            (width - margin).roundToInt(),
+//            (height - margin).roundToInt(),
+//            arc, arc,
+//        )
 
         var currX: Float
         var nextX = margin
