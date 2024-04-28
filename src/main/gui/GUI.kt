@@ -4,6 +4,7 @@ import ActivationFunction.Companion.RELU
 import MultilayerPerceptron
 import com.formdev.flatlaf.FlatLightLaf
 import src.main.util.Util.by
+import java.awt.GridBagLayout
 import java.awt.GridLayout
 import java.util.*
 import javax.swing.*
@@ -52,27 +53,30 @@ class GUI {
 
     companion object {
 
-        private val installedSkins: Map<String, String> by lazy {
-            UIManager.getInstalledLookAndFeels()
-                .map { it.className }
-                .associateBy { it.slice(it.lastIndexOf(".") + 1..it.length - 12) }
-        }
-
         val INSTANCE by lazy { GUI() }
 
         @JvmStatic
         fun main(args: Array<String>) {
 
-            val structure = MultilayerPerceptron.Structure(17, 10, listOf(10))
+            FlatLightLaf.setup()
+            UIManager.setLookAndFeel(FlatLightLaf())
+
+            val structure = MultilayerPerceptron.Structure(10, 10, listOf(10))
             val blueprint = MultilayerPerceptron.Blueprint(structure, RELU, listOf(RELU))
             val model = blueprint.instantiate().also { it.randomize(Random()) }
 
-            FlatLightLaf.setup()
-//            UIManager.setLookAndFeel(installedSkins["Nimbus"])
-            UIManager.setLookAndFeel(FlatLightLaf())
-
             INSTANCE.apply {
-                tabs.addTab("new-tab", MLPUI(model))
+                tabs.addTab("new-tab", JPanel(GridBagLayout()).apply {
+                    add(
+                        MultilayerPerceptronView(
+                            model, listOf(
+                                LayerView.Column(10),
+                                LayerView.Column(10),
+                                LayerView.Column(10),
+                            )
+                        )
+                    )
+                })
                 frame.apply {
                     preferredSize = 640 by 480
                     size = preferredSize

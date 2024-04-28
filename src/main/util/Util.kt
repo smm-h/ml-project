@@ -1,5 +1,6 @@
 package src.main.util
 
+import java.awt.Color
 import java.awt.Dimension
 import java.nio.file.Files
 import java.nio.file.Path
@@ -62,4 +63,7 @@ object Util {
 
     infix fun Int.by(that: Int) =
         Dimension(this, that)
+
+    val HALF_BLACK = Color(0, 0, 0, 127)
+    val QUARTER_BLACK = Color(0, 0, 0, 63)
 }

@@ -30,7 +30,7 @@ object Menu {
                         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                             val file = fileChooser.selectedFile
                             val model = MultilayerPerceptron.readModel(file.absolutePath)
-                            GUI.INSTANCE.tabs.addTab(file.name, MLPUI(model))
+//                            GUI.INSTANCE.tabs.addTab(file.name, MultilayerPerceptronView(model))
                         }
                     }
                 })
