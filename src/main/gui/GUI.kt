@@ -1,8 +1,10 @@
 package src.main.gui
 
+import ActivationFunction.Companion.RELU
 import MultilayerPerceptron
 import src.main.util.Util.by
 import java.awt.GridLayout
+import java.util.*
 import javax.swing.*
 
 
@@ -62,9 +64,14 @@ class GUI {
 
         @JvmStatic
         fun main(args: Array<String>) {
+
+            val structure = MultilayerPerceptron.Structure(10, 10, listOf(10))
+            val blueprint = MultilayerPerceptron.Blueprint(structure, RELU, listOf(RELU))
+            val model = blueprint.instantiate().also { it.randomize(Random()) }
+
             INSTANCE.apply {
                 skin = "Nimbus"
-                tabs.addTab("new-tab", MLPUI(MultilayerPerceptron.Structure(1, 1, listOf(1))))
+                tabs.addTab("new-tab", MLPUI(model))
                 frame.apply {
                     preferredSize = 640 by 480
                     size = preferredSize
