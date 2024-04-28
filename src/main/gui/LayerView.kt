@@ -1,6 +1,6 @@
 package src.main.gui
 
-import src.main.util.Util.HALF_BLACK
+import src.main.util.Util
 import java.awt.Color
 import java.awt.Graphics2D
 import kotlin.math.roundToInt
@@ -36,7 +36,7 @@ interface LayerView : Iterable<Int> {
             val s = cellSize.roundToInt()
             g.color = Color.WHITE
             g.fillOval(x, y, s, s)
-            g.color = HALF_BLACK
+            g.color = Util.HALF_BLACK
             g.drawOval(x, y, s, s)
         }
     }
@@ -48,14 +48,14 @@ interface LayerView : Iterable<Int> {
             val s = cellSize.roundToInt()
             g.color = Color.WHITE
             g.fillRect(x, y, s, s)
-            g.color = HALF_BLACK
+            g.color = Util.HALF_BLACK
             g.drawRect(x, y, s, s)
         }
     }
 
     class Column(
         override val cellCount: Int,
-        override val cellSize: Float = 16f,
+        override val cellSize: Float = 32f,
     ) : CircleCells {
 
         val vSep = cellSize * 0.5f
@@ -72,7 +72,7 @@ interface LayerView : Iterable<Int> {
 
     class DenseColumn(
         override val cellCount: Int,
-        override val cellSize: Float = 4f,
+        override val cellSize: Float = 8f,
     ) : SquareCells {
 
         override val hSize
@@ -87,7 +87,7 @@ interface LayerView : Iterable<Int> {
     class Grid(
         val hCellCount: Int,
         val vCellCount: Int,
-        override val cellSize: Float = 16f,
+        override val cellSize: Float = 32f,
     ) : CircleCells {
         override val cellCount get() = hCellCount * vCellCount
 
@@ -106,7 +106,7 @@ interface LayerView : Iterable<Int> {
     class DenseGrid(
         val hCellCount: Int,
         val vCellCount: Int,
-        override val cellSize: Float = 4f,
+        override val cellSize: Float = 8f,
     ) : SquareCells {
         override val cellCount get() = hCellCount * vCellCount
 

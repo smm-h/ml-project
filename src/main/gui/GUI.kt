@@ -1,5 +1,6 @@
 package src.main.gui
 
+import ActivationFunction.Companion.CAPPED_RELU
 import ActivationFunction.Companion.RELU
 import MultilayerPerceptron
 import com.formdev.flatlaf.FlatLightLaf
@@ -39,7 +40,7 @@ class GUI {
     val split = JSplitPane().apply {
         leftComponent = treePanel
         rightComponent = tabsPanel
-        this.dividerLocation = 192
+        this.dividerLocation = 0 // 192
     }
     val panel = JPanel(GridLayout()).apply {
         add(split)
@@ -61,24 +62,17 @@ class GUI {
             FlatLightLaf.setup()
             UIManager.setLookAndFeel(FlatLightLaf())
 
-            val structure = MultilayerPerceptron.Structure(10, 10, listOf(10))
-            val blueprint = MultilayerPerceptron.Blueprint(structure, RELU, listOf(RELU))
-            val model = blueprint.instantiate().also { it.randomize(Random()) }
+            val structure = MultilayerPerceptron.Structure(784, 10, listOf(64, 64))
+            val blueprint = MultilayerPerceptron.Blueprint(structure, CAPPED_RELU, listOf(RELU, RELU))
+            val model = blueprint.instantiate()
+                .also { it.randomize(Random()) }
 
             INSTANCE.apply {
                 tabs.addTab("new-tab", JPanel(GridBagLayout()).apply {
-                    add(
-                        MultilayerPerceptronView(
-                            model, listOf(
-                                LayerView.Column(10),
-                                LayerView.Column(10),
-                                LayerView.Column(10),
-                            )
-                        )
-                    )
+                    add(MultilayerPerceptronView(model, 0 to (28 by 28)))
                 })
                 frame.apply {
-                    preferredSize = 640 by 480
+//                    preferredSize = 640 by 480
                     size = preferredSize
                     isVisible = true
                     pack()
