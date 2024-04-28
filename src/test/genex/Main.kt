@@ -14,11 +14,11 @@ import src.main.mnist.MNIST.training
 object Main {
     @JvmStatic
     fun main(args: Array<String>) {
-        val hiddenLayerSizes = listOf(400, 200, 100, 50)
+        val hiddenLayerSizes = listOf(50, 50, 50)
         val experiment = Experiment(
             seed = (Math.random() * Long.MAX_VALUE).toLong(),
             directory = defaultDirectory,
-            data = training.slice(0 until 1000),
+            data = training.slice(0 until 10),
             labeler = ::determineLabel,
             blueprint = Blueprint(
                 structure = Structure(
@@ -31,9 +31,9 @@ object Main {
             ),
             populationSize = 6,
             parentsCount = 3,
-            mutationProbability = 0.001f,
-            logEvery = 1,
-            saveEvery = 30000L,
+            mutationProbability = 0.01f,
+            logEvery = 1000,
+            saveEvery = 10000L,
         )
 //        println(experiment.getConfig())
         println("Press Enter to start...")

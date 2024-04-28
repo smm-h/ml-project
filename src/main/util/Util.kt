@@ -64,6 +64,7 @@ object Util {
     infix fun Int.by(that: Int) =
         Dimension(this, that)
 
+    fun gray(value: Float) = Color(value, value, value)
     val HALF_BLACK = Color(0, 0, 0, 127)
     val QUARTER_BLACK = Color(0, 0, 0, 63)
 }

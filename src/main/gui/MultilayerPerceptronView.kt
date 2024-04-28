@@ -19,6 +19,21 @@ class MultilayerPerceptronView(
 
     private val n = model.structure.hiddenLayerSizes.size + 2
 
+    var input: FloatArray
+        get() = layerViews.first().data
+        set(value) {
+            layerViews.first().data = value
+            output = model.forwardPropagate(value)
+            refresh()
+        }
+
+    var output: FloatArray
+        get() = layerViews.last().data
+        set(value) {
+            layerViews.last().data = value
+            refresh()
+        }
+
     private val layerViews = List(n) { i ->
         val s = when (i) {
             0 -> model.inputSize
