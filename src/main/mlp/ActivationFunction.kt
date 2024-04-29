@@ -1,4 +1,4 @@
-@file:Suppress("SpellCheckingInspection", "MemberVisibilityCanBePrivate", "FunctionName")
+package src.main.mlp
 
 import kotlin.math.exp
 import kotlin.math.ln
@@ -8,6 +8,7 @@ import kotlin.math.tanh
 /**
  * [Wikipedia](https://en.wikipedia.org/wiki/Activation_function)
  */
+@Suppress("SpellCheckingInspection", "MemberVisibilityCanBePrivate", "FunctionName", "unused")
 class ActivationFunction(
     val name: String,
     val function: (Float) -> Float,

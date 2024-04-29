@@ -1,3 +1,5 @@
+package src.main.mlp
+
 import java.io.*
 import java.util.*
 import kotlin.io.path.Path
@@ -7,7 +9,7 @@ import kotlin.math.pow
 /**
  * [Wikipedia](https://en.wikipedia.org/wiki/Multilayer_perceptron)
  */
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class MultilayerPerceptron private constructor(
     val blueprint: Blueprint,
     private val layers: Array<Layer>,
@@ -37,7 +39,7 @@ class MultilayerPerceptron private constructor(
     private class Layer(
         val neurons: Array<Neuron>,
         val activationFunction: ActivationFunction
-    ) {
+    ) : ReadableLayer {
         val size: Int get() = neurons.size
 
         fun forwardPropagate(input: FloatArray) =
@@ -48,6 +50,12 @@ class MultilayerPerceptron private constructor(
 
         override fun hashCode(): Int =
             neurons.contentHashCode() xor activationFunction.hashCode()
+
+        override fun getBias(neuronIndex: Int): Float =
+            neurons[neuronIndex].bias
+
+        override fun getWeight(neuronIndex: Int, prevNeuronIndex: Int): Float =
+            neurons[neuronIndex].weights[prevNeuronIndex]
     }
 
     private class Neuron(val bias: Float, val weights: FloatArray) {
@@ -61,11 +69,8 @@ class MultilayerPerceptron private constructor(
             bias.hashCode() xor weights.contentHashCode()
     }
 
-    fun getBias(layerIndex: Int, neuronIndex: Int): Float =
-        layers[layerIndex].neurons[neuronIndex].bias
-
-    fun getWeight(layerIndex: Int, neuronIndex: Int, prevNeuronIndex: Int): Float =
-        layers[layerIndex].neurons[neuronIndex].weights[prevNeuronIndex]
+    fun getReadableLayer(index: Int): ReadableLayer =
+        layers[index]
 
     private fun randomNeuron(size: Int, random: Random) =
         Neuron(
