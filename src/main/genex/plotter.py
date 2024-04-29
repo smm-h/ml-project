@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 from math import sqrt, ceil
 
+path = "../../../experiments/"
+
 
 def get_plot_data(timestamp):
-    filename = "experiments/" + timestamp + "/plot.csv"
+    filename = path + timestamp + "/plot.csv"
 
     plot_data = {
         "Generation": [],
@@ -27,7 +29,7 @@ def get_plot_data(timestamp):
     return plot_data
 
 
-with open("../experiments/index.txt") as f:
+with open(path+"index.txt") as f:
     all_timestamps = [i.strip() for i in f]
 
 last_count = 1
@@ -52,9 +54,9 @@ for i in range(n):
     try:
         data = get_plot_data(t)
         x = data["Generation"]
-        part.plot(x, data["Average"], "b")
-        part.plot(x, data["Min"], "r")
         part.plot(x, data["Max"], "g")
+        part.plot(x, data["Min"], "r")
+        part.plot(x, data["Average"], "b")
     except FileNotFoundError:
         pass
 

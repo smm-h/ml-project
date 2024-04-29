@@ -1,7 +1,9 @@
 package src.main.gui
 
-import MultilayerPerceptron
+import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatLightLaf
+import src.main.mlp.MultilayerPerceptron
+import src.main.mnist.MNIST
 import src.main.util.Util.by
 import java.awt.GridBagLayout
 import java.awt.GridLayout
@@ -18,7 +20,8 @@ class GUI {
     val models = DefaultMutableTreeNode("Models").apply {
     }
     val root = DefaultMutableTreeNode().apply {
-        val filename = "D:/CE/ML/project/experiments/20240428_070839/0.mlp"
+//        val filename = "D:/CE/ML/project/experiments/20240428_094012/0.mlp"
+        val filename = "D:/CE/ML/project/experiments/best.mlp"
 //        add(models)
         add(DefaultMutableTreeNode(TreeItem.FileItem(File(filename))))
     }
@@ -37,7 +40,7 @@ class GUI {
                             val model = MultilayerPerceptron.readModel(file.absolutePath)
                             tabs.addTab(file.name, JPanel(GridBagLayout()).apply {
                                 add(MultilayerPerceptronView(model, 0 to (28 by 28)).apply {
-//                                    input =  MNIST.training[1].data
+                                    input = MNIST.training[(Math.random() * 1000).toInt()].data
                                 })
                             })
                         }
@@ -75,8 +78,15 @@ class GUI {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            FlatLightLaf.setup()
-            UIManager.setLookAndFeel(FlatLightLaf())
+            val darkMode: Boolean = false
+
+            if (darkMode) {
+                FlatDarkLaf.setup()
+                UIManager.setLookAndFeel(FlatDarkLaf())
+            } else {
+                FlatLightLaf.setup()
+                UIManager.setLookAndFeel(FlatLightLaf())
+            }
 
 //            val structure = MultilayerPerceptron.Structure(784, 10, listOf(64, 64))
 //            val blueprint = MultilayerPerceptron.Blueprint(structure, CAPPED_RELU, listOf(RELU, RELU))

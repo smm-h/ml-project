@@ -16,7 +16,6 @@ interface LayerView : Iterable<Int> {
 
     var data: FloatArray
 
-
     override fun iterator(): Iterator<Int> = (0 until cellCount).iterator()
 
     fun getCellX(cellIndex: Int): Float
@@ -25,8 +24,25 @@ interface LayerView : Iterable<Int> {
     fun getCellCenterX(cellIndex: Int) = getCellX(cellIndex) + cellSize / 2f
     fun getCellCenterY(cellIndex: Int) = getCellY(cellIndex) + cellSize / 2f
 
-    fun draw(g: Graphics2D, x: Float, y: Float) {
-        forEach { i -> drawCell(g, i, x + getCellX(i), y + getCellY(i)) }
+    fun draw(
+        g: Graphics2D,
+        x: Float,
+        y: Float,
+        enabled: Boolean,
+    ) {
+        if (enabled) {
+            forEach { i ->
+                drawCell(g, i, x + getCellX(i), y + getCellY(i))
+            }
+        } else {
+            g.color = Util.HALF_GRAY
+            g.fillRect(
+                x.roundToInt(),
+                y.roundToInt(),
+                hSize.roundToInt(),
+                vSize.roundToInt(),
+            )
+        }
     }
 
     fun drawCell(g: Graphics2D, i: Int, x: Float, y: Float)

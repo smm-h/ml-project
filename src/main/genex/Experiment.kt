@@ -1,7 +1,7 @@
 package src.main.genex
 
-import LabeledData
-import MultilayerPerceptron
+import src.main.mlp.LabeledData
+import src.main.mlp.MultilayerPerceptron
 import src.main.util.Stats
 import src.main.util.Util
 import src.main.util.Util.formatPercentage

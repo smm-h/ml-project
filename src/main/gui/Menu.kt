@@ -1,6 +1,6 @@
 package src.main.gui
 
-import MultilayerPerceptron
+import src.main.mlp.MultilayerPerceptron
 import java.awt.event.KeyEvent
 import javax.swing.*
 import javax.swing.JOptionPane.showMessageDialog

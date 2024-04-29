@@ -1,9 +1,9 @@
 package src.test.mlp
 
-import ActivationFunction.Companion.RELU
-import MultilayerPerceptron.Blueprint
-import MultilayerPerceptron.Companion.readModel
-import MultilayerPerceptron.Structure
+import src.main.mlp.ActivationFunction.Companion.RELU
+import src.main.mlp.MultilayerPerceptron.Blueprint
+import src.main.mlp.MultilayerPerceptron.Companion.readModel
+import src.main.mlp.MultilayerPerceptron.Structure
 import java.io.File
 import java.util.*
 

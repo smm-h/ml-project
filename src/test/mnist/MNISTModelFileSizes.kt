@@ -1,6 +1,6 @@
 package src.test.mnist
 
-import MultilayerPerceptron.Structure
+import src.main.mlp.MultilayerPerceptron.Structure
 import src.main.util.Util
 
 object MNISTModelFileSizes {

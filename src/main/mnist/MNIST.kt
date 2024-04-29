@@ -1,6 +1,6 @@
 package src.main.mnist
 
-import LabeledData
+import src.main.mlp.LabeledData
 import src.main.mnist.MNIST.testing
 import src.main.mnist.MNIST.training
 import java.io.BufferedInputStream
