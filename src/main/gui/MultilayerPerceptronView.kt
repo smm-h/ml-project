@@ -24,7 +24,7 @@ class MultilayerPerceptronView(
     private val structure = MultilayerPerceptron.readStructure(filename)
     private val model by lazy { MultilayerPerceptron.readModel(filename) }
 
-    private val margin: Float = 8f
+    private val padding: Float = 8f
     private val gridLayersMap = gridLayers.toMap()
 
     private val n = structure.hiddenLayerSizes.size + 2
@@ -106,13 +106,6 @@ class MultilayerPerceptronView(
         )
     }
 
-    private val areaHandler = MouseAreaHandler().also {
-        addMouseMotionListener(it)
-        layerViews.forEach { layerView ->
-            it.visuals.add(layerView)
-        }
-    }
-
     private val mouseHandler = object : MouseAdapter() {
         private var isLeftMouseButtonDown = false
 
@@ -122,7 +115,7 @@ class MultilayerPerceptronView(
             } else when (e.button) {
                 MouseEvent.BUTTON1 -> {
                     val l = layerViews.first()
-                    val rx: Float = e.x - margin
+                    val rx: Float = e.x - padding
                     val ry: Float = e.y - (height - l.h) / 2
                     if (rx >= 0 && rx <= l.w &&
                         ry >= 0 && ry <= l.h
@@ -143,13 +136,19 @@ class MultilayerPerceptronView(
         }
 
         override fun mouseMoved(e: MouseEvent) {
-            super.mouseMoved(e)
+            layerViews.forEach {
+                val x = it.contains(e.x.toFloat(), e.y.toFloat(), 2f)
+                if (it.containsMouse != x) {
+                    it.containsMouse = x
+                    redraw()
+                }
+            }
         }
 
         override fun mouseDragged(e: MouseEvent) {
             if (isLeftMouseButtonDown) {
                 val l = layerViews.first()
-                val rx: Float = e.x - margin
+                val rx: Float = e.x - padding
                 val ry: Float = e.y - (height - l.h) / 2
                 when (l) {
                     is BigGridLayerView -> {
@@ -242,7 +241,7 @@ class MultilayerPerceptronView(
                 if (index != n - 1)
                     w += weightsViews[index].gapSize
             }
-            return w + margin * 2
+            return w + padding * 2
         }
 
     private val vSize: Float
@@ -251,7 +250,7 @@ class MultilayerPerceptronView(
             layerViews.forEach { layer ->
                 h = max(layer.h, h)
             }
-            return h + margin * 2
+            return h + padding * 2
         }
 
     private fun updateSize() {
@@ -271,27 +270,29 @@ class MultilayerPerceptronView(
         val g = GUIUtil.getSmoothGraphics(g0)
 
         if (showBorder) {
-            GUIUtil.drawOutline(g, 0f, 0f, width.toFloat(), height.toFloat(), -margin / 2)
+            GUIUtil.drawOutline(g, 0f, 0f, width.toFloat(), height.toFloat(), -padding / 2)
         }
 
         var x: Float
 
-        x = margin
+        x = padding
         weightsViews.forEach {
-            val y = ((height - vSize) / 2)
-            it.draw(g, x, y, showWeights)
-            //drawOutline(g, x, y, it.hSize, it.vSize, 0f)
+            it.x = x
+            it.y = ((height - vSize) / 2)
+            it.enabled = showWeights
+            it.draw(g)
+            //GUIUtil.drawOutline(g, x, y, it.hSize, it.vSize, 0f)
             x += it.l.w + it.gapSize
         }
 
-        x = margin
+        x = padding
         layerViews.forEachIndexed { i, it ->
             val y = (height - it.h) / 2
             it.x = x
             it.y = y
             it.enabled = showHiddenLayers || i == 0 || i == n - 1
             it.draw(g)
-            GUIUtil.drawOutline(g, x, y, it.w, it.h, 4f)
+//            GUIUtil.drawOutline(g, x, y, it.w, it.h, 4f)
             x += it.w
             if (i != n - 1)
                 x += weightsViews[i].gapSize

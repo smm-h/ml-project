@@ -1,5 +1,6 @@
 package src.main.gui.layerview
 
+import src.main.gui.GUIUtil
 import src.main.gui.vis.Rectangular
 import java.awt.Color
 import java.awt.Graphics2D
@@ -27,7 +28,7 @@ interface LayerView : Iterable<Int>, Rectangular {
     fun getCellCenterX(cellIndex: Int) = getCellX(cellIndex) + cellSize / 2f
     fun getCellCenterY(cellIndex: Int) = getCellY(cellIndex) + cellSize / 2f
 
-    fun draw(g: Graphics2D) {
+    override fun draw(g: Graphics2D) {
         if (enabled) {
             forEach { i ->
                 drawCell(g, i, x + getCellX(i), y + getCellY(i))
@@ -40,6 +41,9 @@ interface LayerView : Iterable<Int>, Rectangular {
                 w.roundToInt(),
                 h.roundToInt(),
             )
+        }
+        if (containsMouse) {
+            GUIUtil.drawOutline(g, x, y, w, h, 2f)
         }
     }
 

@@ -4,6 +4,6 @@ interface Rectangular : Visual {
     val w: Float
     val h: Float
 
-    override fun contains(x: Float, y: Float): Boolean =
-        x >= this.x && y >= this.y && x < this.x + w && y < this.y + h
+    override fun contains(x: Float, y: Float, margin: Float): Boolean =
+        x >= this.x - margin && y >= this.y - margin && x < this.x + w + margin && y < this.y + h + margin
 }

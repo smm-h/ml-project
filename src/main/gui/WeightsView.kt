@@ -1,7 +1,6 @@
 package src.main.gui
 
 import src.main.gui.layerview.LayerView
-import src.main.gui.vis.Visual
 import src.main.mlp.Weights
 import java.awt.Color
 import java.awt.Graphics2D
@@ -21,23 +20,16 @@ class WeightsView(
     val alphaPower: Int,
     val alphaFactor: Float,
     val minimumVisibleAlpha: Float,
-) : Visual {
+) {
 
-    override fun contains(x: Float, y: Float): Boolean {
-        return false
-        // TODO
-    }
+    var x: Float = 0f
+    var y: Float = 0f
 
-    override var x: Float = 0f
-    override var y: Float = 0f
+    var enabled: Boolean = true
+
     //    Area.Circular
-//
-//
 //    override val radius: Float
 //        get() = gapSize
-//
-//    override fun invoke() {
-//    }
 
     val hSize get() = l.w + gapSize + r.w
 //        val vSize get() = max(l.vSize, r.vSize)
@@ -45,7 +37,7 @@ class WeightsView(
     private val divisor: Float =
         (l.cellCount + r.cellCount) / 32f
 
-    fun draw(g: Graphics2D, x: Float, y: Float, enabled: Boolean) {
+    fun draw(g: Graphics2D) {
         if (enabled)
             g.drawImage(enabledImage, x.roundToInt(), y.roundToInt(), null)
     }
