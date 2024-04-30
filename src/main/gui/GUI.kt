@@ -2,8 +2,8 @@ package src.main.gui
 
 import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatLightLaf
+import src.main.gui.GUIUtil.by
 import src.main.mnist.MNIST
-import src.main.util.Util.by
 import java.awt.GridBagLayout
 import java.awt.GridLayout
 import java.io.File
@@ -91,7 +91,7 @@ class GUI {
             GUI().apply {
                 darkMode = false
                 frame.apply {
-                    preferredSize = 640 by 480
+                    preferredSize = 800 by 600
                     size = preferredSize
                     isVisible = true
                     pack()
