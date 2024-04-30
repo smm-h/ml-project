@@ -8,9 +8,12 @@ import java.awt.GridBagLayout
 import java.awt.GridLayout
 import java.io.File
 import javax.swing.*
+import javax.swing.JFileChooser.APPROVE_OPTION
+import javax.swing.filechooser.FileNameExtensionFilter
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.TreeModel
+import kotlin.system.exitProcess
 
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
@@ -33,7 +36,9 @@ class GUI {
 //        val filename = "D:/CE/ML/project/experiments/20240428_094012/0.mlp"
         val filename = "D:/CE/ML/project/experiments/best.mlp"
 //        add(models)
+//        addFileToTree(filename)
         add(DefaultMutableTreeNode(TreeItem.FileItem(File(filename))))
+
     }
     val treeModel: TreeModel = DefaultTreeModel(root)
     val tree = JTree(treeModel).apply {
@@ -68,7 +73,7 @@ class GUI {
     val split = JSplitPane().apply {
         leftComponent = treePanel
         rightComponent = tabsPanel
-        this.dividerLocation = 192
+        dividerLocation = 192
     }
     val panel = JPanel(GridLayout()).apply {
         add(split)
@@ -93,5 +98,42 @@ class GUI {
                 }
             }
         }
+    }
+
+    fun addFileToTree(filename: String) {
+        root.add(DefaultMutableTreeNode(TreeItem.FileItem(File(filename))))
+        tree.revalidate()
+        tree.repaint()
+    }
+
+    fun new() {
+
+    }
+
+    private val mlpExtensionFilter =
+        FileNameExtensionFilter("Multilayer Perceptron (*.mlp)", "mlp")
+
+    fun open() {
+        JFileChooser().apply {
+            fileFilter = mlpExtensionFilter
+            if (showOpenDialog(frame) == APPROVE_OPTION) {
+                val file = selectedFile
+                addFileToTree(file.absolutePath)
+                // tabs.addTab(file.name, MultilayerPerceptronView(file.absolutePath))
+            }
+        }
+    }
+
+    fun save() {
+
+    }
+
+    fun saveAs() {
+
+    }
+
+    fun exit() {
+        frame.isVisible = false
+        exitProcess(0)
     }
 }

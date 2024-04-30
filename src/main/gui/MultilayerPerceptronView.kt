@@ -5,15 +5,15 @@ import src.main.mlp.ReadableLayer
 import src.main.mnist.MNIST
 import src.main.util.Util
 import src.main.util.Util.by
-import java.awt.*
+import java.awt.Color
+import java.awt.Dimension
+import java.awt.Graphics
+import java.awt.Graphics2D
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
 import javax.swing.*
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.pow
-import kotlin.math.roundToInt
+import kotlin.math.*
 
 class MultilayerPerceptronView(
     private val filename: String,
@@ -57,7 +57,7 @@ class MultilayerPerceptronView(
         val d = gridLayersMap[i]
         if (d == null) {
             if (s > 16)
-                LayerView.BigColumn(s, (320f / s).toInt() + 1f)
+                LayerView.BigColumn(s, round(640f / s).coerceAtLeast(2f))
             else
                 LayerView.SmallColumn(s)
         } else {
@@ -197,22 +197,22 @@ class MultilayerPerceptronView(
 
     private val hSize: Float
         get() {
-            var w = margin * 2
+            var w = 0f
             layerViews.forEachIndexed { index, layer ->
                 w += layer.hSize
                 if (index != n - 1)
                     w += weightViews[index].gapSize
             }
-            return w
+            return w + margin * 2
         }
 
     private val vSize: Float
         get() {
-            var h = margin * 2
+            var h = 0f
             layerViews.forEach { layer ->
                 h = max(layer.vSize, h)
             }
-            return h
+            return h + margin * 2
         }
 
     private fun updateSize() {
@@ -229,16 +229,11 @@ class MultilayerPerceptronView(
 
     override fun paintComponent(g0: Graphics?) {
         super.paintComponent(g0)
-        val g = g0 as Graphics2D
-
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
-        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY)
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+        val g = Util.getSmoothGraphics(g0)
 
 //        val k = (margin / 2).roundToInt()
 //        val arc = (margin * 2).roundToInt()
-//        g.color = QUARTER_BLACK
+//        g.color = Util.QUARTER_BLACK
 //        g.drawRoundRect(
 //            k, k,
 //            (width - margin).roundToInt(),
@@ -293,8 +288,7 @@ class MultilayerPerceptronView(
                 vSize.roundToInt(),
                 BufferedImage.TYPE_INT_ARGB,
             ).also {
-                val g = it.graphics as Graphics2D
-                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+                val g = Util.getSmoothGraphics(it.graphics)
                 r.forEach { nextNeuron ->
                     l.forEach { currNeuron ->
                         val weight = readableLayer.getWeight(nextNeuron, currNeuron)
@@ -323,8 +317,7 @@ class MultilayerPerceptronView(
                 vSize.roundToInt(),
                 BufferedImage.TYPE_INT_ARGB,
             ).also {
-                val g = it.graphics as Graphics2D
-                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+                val g = Util.getSmoothGraphics(it.graphics)
                 val alpha = (1f * alphaFactor / divisor).coerceIn(0f, 1f)
                 g.color = Util.gray(0.5f, alpha)
                 r.forEach { nextNeuron ->
