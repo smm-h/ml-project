@@ -5,6 +5,8 @@ import kotlin.math.roundToInt
 
 object GUIUtil {
 
+    val PI = kotlin.math.PI.toFloat()
+
     infix fun Int.by(that: Int) =
         Dimension(this, that)
 

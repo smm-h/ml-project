@@ -5,12 +5,14 @@ import src.main.gui.layerview.BigColumnLayerView
 import src.main.gui.layerview.BigGridLayerView
 import src.main.gui.layerview.SmallColumnLayerView
 import src.main.gui.layerview.SmallGridLayerView
+import src.main.gui.vis.Visual
 import src.main.mlp.MultilayerPerceptron
 import src.main.mnist.MNIST
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.util.*
 import javax.swing.*
 import kotlin.math.max
 import kotlin.math.round
@@ -106,6 +108,8 @@ class MultilayerPerceptronView(
         )
     }
 
+    private val visualsContainingMouse = PriorityQueue<Visual> { v1, v2 -> (v1.area - v2.area).roundToInt() }
+
     private val mouseHandler = object : MouseAdapter() {
         private var isLeftMouseButtonDown = false
 
@@ -140,6 +144,11 @@ class MultilayerPerceptronView(
                 val x = it.contains(e.x.toFloat(), e.y.toFloat(), 2f)
                 if (it.containsMouse != x) {
                     it.containsMouse = x
+                    if (x) {
+                        visualsContainingMouse.add(it)
+                    } else {
+                        visualsContainingMouse.remove(it)
+                    }
                     redraw()
                 }
             }
