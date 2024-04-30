@@ -1,8 +1,8 @@
 package src.main.mlp
 
+import src.main.util.Util.sqr
 import kotlin.math.exp
 import kotlin.math.ln
-import kotlin.math.pow
 import kotlin.math.tanh
 
 /**
@@ -82,7 +82,7 @@ class ActivationFunction(
         val TANH = ActivationFunction(
             "TANH",
             ::tanh,
-            { x -> 1 - (tanh(x)).pow(2) },
+            { x -> 1 - sqr(tanh(x)) },
             Range.Continuous(-1f, 1f)
         )
 
@@ -140,14 +140,14 @@ class ActivationFunction(
         val SILU = ActivationFunction(
             "SILU",
             { x -> x / (1 + exp(-x)) },
-            { x -> (1 + exp(-x) + x * exp(-x)) / ((1 + exp(-x)).pow(2)) },
+            { x -> (1 + exp(-x) + x * exp(-x)) / sqr(1 + exp(-x)) },
             Range.Continuous(-0.278f, Float.POSITIVE_INFINITY)
         )
 
         val GAUSSIAN = ActivationFunction(
             "GAUSSIAN",
-            { x -> exp(-x.pow(2)) },
-            { x -> -2 * x * exp(-x.pow(2)) },
+            { x -> exp(-sqr(x)) },
+            { x -> -2 * x * exp(-sqr(x)) },
             Range.Continuous(0f, 1f, bInclusive = true)
         )
     }

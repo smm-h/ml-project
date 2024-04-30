@@ -59,26 +59,6 @@ object Util {
     fun formatPercentage(x: Float): String =
         ((x * 100000).roundToInt() / 1000f).toString() + "%"
 
-    infix fun Int.by(that: Int) =
-        Dimension(this, that)
-
-    fun gray(value: Float, alpha: Float = 1f) =
-        Color(value, value, value, alpha)
-
-    val HALF_BLACK =
-        gray(0f, 0.5f)
-    val QUARTER_BLACK =
-        gray(0f, 0.25f)
-    val HALF_GRAY =
-        gray(0.5f, 0.5f)
-    val QUARTER_GRAY =
-        gray(0.5f, 0.25f)
-
-    fun getSmoothGraphics(g: Graphics?) = (g as Graphics2D).also {
-        it.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-        it.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
-        it.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY)
-        it.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
-        it.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE)
-    }
+    fun sqr(x: Int): Int = x * x
+    fun sqr(x: Float): Float = x * x
 }

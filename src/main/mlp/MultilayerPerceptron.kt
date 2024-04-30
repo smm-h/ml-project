@@ -1,10 +1,10 @@
 package src.main.mlp
 
+import src.main.util.Util.sqr
 import java.io.*
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.extension
-import kotlin.math.pow
 
 /**
  * [Wikipedia](https://en.wikipedia.org/wiki/Multilayer_perceptron)
@@ -33,7 +33,7 @@ class MultilayerPerceptron private constructor(
     fun calculateLoss(actualOutput: FloatArray, expectedOutput: FloatArray): Float {
         assert(actualOutput.size == outputSize)
         assert(expectedOutput.size == outputSize)
-        return actualOutput.indices.fold(0f) { loss, i -> loss + (actualOutput[i] - expectedOutput[i]).pow(2) }
+        return actualOutput.indices.fold(0f) { loss, i -> loss + sqr(actualOutput[i] - expectedOutput[i]) }
     }
 
     private class Layer(
