@@ -2,7 +2,6 @@ package src.main.gui
 
 import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatLightLaf
-import src.main.mlp.MultilayerPerceptron
 import src.main.mnist.MNIST
 import src.main.util.Util.by
 import java.awt.GridBagLayout
@@ -16,6 +15,17 @@ import javax.swing.tree.TreeModel
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class GUI {
+
+    var darkMode: Boolean = false
+        set(value) {
+            if (value) {
+                assert(FlatDarkLaf.setup())
+            } else {
+                assert(FlatLightLaf.setup())
+            }
+            SwingUtilities.updateComponentTreeUI(frame)
+            field = value
+        }
 
     val models = DefaultMutableTreeNode("Models").apply {
     }
@@ -37,9 +47,8 @@ class GUI {
                     when (x) {
                         is TreeItem.FileItem -> {
                             val file = x.file
-                            val model = MultilayerPerceptron.readModel(file.absolutePath)
                             tabs.addTab(file.name, JPanel(GridBagLayout()).apply {
-                                add(MultilayerPerceptronView(model, 0 to (28 by 28)).apply {
+                                add(MultilayerPerceptronView(file.absolutePath, 0 to (28 by 28)).apply {
                                     input = MNIST.training[(Math.random() * 1000).toInt()].data
                                 })
                             })
@@ -67,34 +76,15 @@ class GUI {
     val frame = JFrame("Neurarium").apply {
         isLocationByPlatform = true
         defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-        jMenuBar = Menu.jMenuBar
+        jMenuBar = Menu(this@GUI)
         contentPane = panel
     }
 
     companion object {
-
-        val INSTANCE by lazy { GUI() }
-
         @JvmStatic
         fun main(args: Array<String>) {
-
-            val darkMode: Boolean = false
-
-            if (darkMode) {
-                FlatDarkLaf.setup()
-                UIManager.setLookAndFeel(FlatDarkLaf())
-            } else {
-                FlatLightLaf.setup()
-                UIManager.setLookAndFeel(FlatLightLaf())
-            }
-
-//            val structure = MultilayerPerceptron.Structure(784, 10, listOf(64, 64))
-//            val blueprint = MultilayerPerceptron.Blueprint(structure, CAPPED_RELU, listOf(RELU, RELU))
-//            val model = blueprint.instantiate()
-//                .also { it.randomize(Random()) }
-
-
-            INSTANCE.apply {
+            GUI().apply {
+                darkMode = false
                 frame.apply {
                     preferredSize = 640 by 480
                     size = preferredSize

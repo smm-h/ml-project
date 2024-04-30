@@ -16,13 +16,17 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 class MultilayerPerceptronView(
-    private val model: MultilayerPerceptron,
+    private val filename: String,
     vararg gridLayers: Pair<Int, Dimension>,
 ) : JPanel() {
+
+    private val structure = MultilayerPerceptron.readStructure(filename)
+    private val model by lazy { MultilayerPerceptron.readModel(filename) }
+
     private val margin: Float = 2f
     private val gridLayersMap = gridLayers.toMap()
 
-    private val n = model.structure.hiddenLayerSizes.size + 2
+    private val n = structure.hiddenLayerSizes.size + 2
 
     private var showHiddenLayers = true
     private var showWeights = true
@@ -46,9 +50,9 @@ class MultilayerPerceptronView(
 
     private val layerViews = List(n) { i ->
         val s = when (i) {
-            0 -> model.inputSize
-            n - 1 -> model.outputSize
-            else -> model.structure.hiddenLayerSizes[i - 1]
+            0 -> structure.inputSize
+            n - 1 -> structure.outputSize
+            else -> structure.hiddenLayerSizes[i - 1]
         }
         val d = gridLayersMap[i]
         if (d == null) {
@@ -154,7 +158,7 @@ class MultilayerPerceptronView(
     val popUp = JPopupMenu().apply {
         add(JMenuItem("Clear input").apply {
             addActionListener {
-                input = FloatArray(this@MultilayerPerceptronView.model.inputSize)
+                input = FloatArray(structure.inputSize)
             }
         })
         add(JMenuItem("Choose random datapoint as input").apply {
@@ -164,7 +168,7 @@ class MultilayerPerceptronView(
         })
         add(JMenuItem("Randomize input cells").apply {
             addActionListener {
-                input = FloatArray(this@MultilayerPerceptronView.model.inputSize) { Math.random().toFloat() }
+                input = FloatArray(structure.inputSize) { Math.random().toFloat() }
             }
         })
         add(JSeparator())
@@ -186,7 +190,7 @@ class MultilayerPerceptronView(
 
     init {
         updateSize()
-        input = FloatArray(model.inputSize)
+        input = FloatArray(structure.inputSize)
         addMouseListener(mouseHandler)
         addMouseMotionListener(mouseHandler)
     }

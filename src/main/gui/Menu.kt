@@ -1,82 +1,79 @@
 package src.main.gui
 
-import src.main.mlp.MultilayerPerceptron
 import java.awt.event.KeyEvent
 import javax.swing.*
 import javax.swing.JOptionPane.showMessageDialog
 import javax.swing.filechooser.FileNameExtensionFilter
 
 
-object Menu {
-    val jMenuBar = JMenuBar().apply {
-        add(JMenu("File").apply {
-            this.mnemonic = KeyEvent.VK_F
-            add(JMenu("Create New...").apply {
-                this.mnemonic = KeyEvent.VK_N
-                add(JMenuItem("Multilayer Perceptron").apply {
-                    addActionListener {}
-                })
-                add(JMenuItem("Genetic Experiment").apply {
-                    addActionListener {}
-                })
-            })
-            add(JMenu("Open").apply {
-                this.mnemonic = KeyEvent.VK_O
-                // TODO ctrl+O
-                add(JMenuItem("Multilayer Perceptron").apply {
-                    addActionListener {
-                        val fileChooser = JFileChooser()
-                        fileChooser.fileFilter = FileNameExtensionFilter("Multilayer Perceptron (*.mlp)", "mlp")
-                        if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                            val file = fileChooser.selectedFile
-                            val model = MultilayerPerceptron.readModel(file.absolutePath)
-//                            GUI.INSTANCE.tabs.addTab(file.name, MultilayerPerceptronView(model))
-                        }
-                    }
-                })
-            })
-            add(JMenu("Save").apply {
-                this.mnemonic = KeyEvent.VK_S
-            })
-            add(JMenu("Save As").apply {
-            })
-            add(JSeparator())
-            add(JMenu("Add Source File...").apply {
-                this.mnemonic = KeyEvent.VK_A
-                add(JMenuItem("Multilayer Perceptron").apply {
-                    addActionListener {}
-                })
-                add(JMenuItem("Genetic Experiment Configuration").apply {
-                    addActionListener {}
-                })
-                add(JMenuItem("Plot").apply {
-                    addActionListener {}
-                })
-                add(JMenuItem("Dataset").apply {
-                    addActionListener {}
-                })
-            })
-            add(JMenu("Add Source Directory...").apply {
-                this.mnemonic = KeyEvent.VK_D
-            })
-            add(JMenuItem("Remove Source").apply {
-                this.mnemonic = KeyEvent.VK_DELETE
-            })
-            add(JSeparator())
-            add(JMenu("Exit").apply {
-                this.mnemonic = KeyEvent.VK_E
-                addActionListener {
+@Suppress("MemberVisibilityCanBePrivate", "PropertyName", "unused")
+class Menu(val gui: GUI) : JMenuBar() {
 
-                }
-            })
-        })
-        add(JMenu("Help").apply {
-            this.mnemonic = KeyEvent.VK_H
-            add(JMenuItem("About").apply {
-                addActionListener {
-                    showMessageDialog(null, "By SMMH")
-                }
-            })
-        })
+    // TODO keyboard shortcuts
+
+    val File = JMenu("File").also {
+        add(it)
+        it.mnemonic = KeyEvent.VK_F
+    }
+
+    val New = JMenuItem("New").also {
+        File.add(it)
+        it.mnemonic = KeyEvent.VK_N
+    }
+
+    val Open = JMenuItem("Open").also {
+        File.add(it)
+        it.mnemonic = KeyEvent.VK_O
+        it.addActionListener {
+            val fileChooser = JFileChooser()
+            fileChooser.fileFilter = FileNameExtensionFilter("Multilayer Perceptron (*.mlp)", "mlp")
+            if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                val file = fileChooser.selectedFile
+                gui.tabs.addTab(file.name, MultilayerPerceptronView(file.absolutePath))
+            }
+        }
+    }
+
+    val Save = JMenuItem("Save").also {
+        File.add(it)
+        it.mnemonic = KeyEvent.VK_S
+    }
+
+    val SaveAs = JMenuItem("Save As").also {
+        File.add(it)
+        it.mnemonic = KeyEvent.VK_A
+    }
+
+    val Exit = JMenuItem("Exit").also {
+        File.add(JSeparator(SwingConstants.HORIZONTAL))
+        File.add(it)
+        it.addActionListener {
+
+        }
+    }
+
+    val View = JMenu("View").also {
+        add(it)
+        it.mnemonic = KeyEvent.VK_V
+    }
+
+    val EnableDarkMode = JCheckBoxMenuItem("Enable dark mode").also {
+        View.add(it)
+        it.state = gui.darkMode
+        it.addActionListener { _ ->
+            gui.darkMode = it.state
+        }
+    }
+
+    val Help = JMenu("Help").also {
+        add(it)
+        it.mnemonic = KeyEvent.VK_H
+    }
+
+    val About = JMenuItem("About").also {
+        Help.add(it)
+        it.addActionListener {
+            showMessageDialog(null, "By SMMH")
+        }
     }
 }
