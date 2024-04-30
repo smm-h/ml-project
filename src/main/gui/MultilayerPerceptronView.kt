@@ -9,10 +9,7 @@ import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
-import javax.swing.JCheckBoxMenuItem
-import javax.swing.JMenuItem
-import javax.swing.JPanel
-import javax.swing.JPopupMenu
+import javax.swing.*
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.pow
@@ -28,6 +25,7 @@ class MultilayerPerceptronView(
     private val n = model.structure.hiddenLayerSizes.size + 2
 
     private var showHiddenLayers = true
+    private var showWeights = true
 
     var input: FloatArray
         get() = layerViews.first().data
@@ -69,15 +67,18 @@ class MultilayerPerceptronView(
     }
 
     private val weightViews = List(n - 1) { i ->
+        val h = vSize
         WeightView(
             readableLayer = model.getReadableLayer(i),
-            layerIndex = i,
+            l = layerViews[i],
+            r = layerViews[i + 1],
+            lY = (h - layerViews[i].vSize) / 2,
+            rY = (h - layerViews[i + 1].vSize) / 2,
+            gapSize = 112f,
+            vSize = h,
             alphaPower = 2,
             alphaFactor = 1f,
-            hSize = 112f,
             minimumVisibleAlpha = 0.01f,
-            layerViews[i],
-            layerViews[i + 1],
         )
     }
 
@@ -166,10 +167,18 @@ class MultilayerPerceptronView(
                 input = FloatArray(this@MultilayerPerceptronView.model.inputSize) { Math.random().toFloat() }
             }
         })
+        add(JSeparator())
         add(JCheckBoxMenuItem("Show hidden layers").apply {
             this.state = true
             this.addActionListener {
                 showHiddenLayers = state
+                redraw()
+            }
+        })
+        add(JCheckBoxMenuItem("Show weights").apply {
+            this.state = true
+            this.addActionListener {
+                showWeights = state
                 redraw()
             }
         })
@@ -182,18 +191,28 @@ class MultilayerPerceptronView(
         addMouseMotionListener(mouseHandler)
     }
 
-    private fun updateSize() {
-        var w = 0f
-        var h = 0f
-
-        layerViews.forEachIndexed { index, layer ->
-            w += layer.hSize
-            h = max(layer.vSize, h)
-            if (index != n - 1)
-                w += weightViews[index].hSize
+    private val hSize: Float
+        get() {
+            var w = margin * 2
+            layerViews.forEachIndexed { index, layer ->
+                w += layer.hSize
+                if (index != n - 1)
+                    w += weightViews[index].gapSize
+            }
+            return w
         }
 
-        size = (w + margin * 2).roundToInt() by (h + margin * 2).roundToInt()
+    private val vSize: Float
+        get() {
+            var h = margin * 2
+            layerViews.forEach { layer ->
+                h = max(layer.vSize, h)
+            }
+            return h
+        }
+
+    private fun updateSize() {
+        size = hSize.roundToInt() by vSize.roundToInt()
         preferredSize = size
         minimumSize = size
         redraw()
@@ -209,6 +228,9 @@ class MultilayerPerceptronView(
         val g = g0 as Graphics2D
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY)
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
 
 //        val k = (margin / 2).roundToInt()
 //        val arc = (margin * 2).roundToInt()
@@ -220,95 +242,96 @@ class MultilayerPerceptronView(
 //            arc, arc,
 //        )
 
-        var currX: Float
-        var nextX = margin
+        var x: Float
 
+        x = margin
         weightViews.forEach {
-            currX = nextX
-            nextX += it.currLayerView.hSize + it.hSize
-            it.draw(
-                g = g,
-                currX = currX,
-                nextX = nextX,
-                currY = (height - it.currLayerView.vSize) / 2,
-                nextY = (height - it.nextLayerView.vSize) / 2,
-            )
+            val y = ((height - vSize) / 2)
+            it.draw(g, x, y, showWeights)
+            x += it.l.hSize + it.gapSize
         }
 
-        var x0 = margin
+        x = margin
         layerViews.forEachIndexed { index, layer ->
-            layer.draw(g, x0, (height - layer.vSize) / 2, showHiddenLayers || index == 0 || index == n - 1)
-            x0 += layer.hSize
+            val y = (height - layer.vSize) / 2
+            layer.draw(g, x, y, showHiddenLayers || index == 0 || index == n - 1)
+            x += layer.hSize
             if (index != n - 1)
-                x0 += weightViews[index].hSize
+                x += weightViews[index].gapSize
         }
     }
 
     private class WeightView(
         val readableLayer: ReadableLayer,
-        val layerIndex: Int,
+        val l: LayerView,
+        val r: LayerView,
+        val lY: Float,
+        val rY: Float,
+        val gapSize: Float,
+        val vSize: Float,
         val alphaPower: Int,
         val alphaFactor: Float,
-        val hSize: Float,
         val minimumVisibleAlpha: Float,
-        val currLayerView: LayerView,
-        val nextLayerView: LayerView,
     ) {
-        val vSize get() = max(currLayerView.vSize, nextLayerView.vSize)
+        val hSize get() = l.hSize + gapSize + r.hSize
+//        val vSize get() = max(layerViewL.vSize, layerViewR.vSize)
 
         private val divisor: Float =
-            (currLayerView.cellCount + nextLayerView.cellCount) / 32f
+            (l.cellCount + r.cellCount) / 32f
 
-        fun draw(
-            g: Graphics2D,
-            currX: Float,
-            currY: Float,
-            nextX: Float,
-            nextY: Float,
-        ) {
-            nextLayerView.forEach { nextNeuron ->
-                currLayerView.forEach { currNeuron ->
-                    val weight = readableLayer.getWeight(nextNeuron, currNeuron)
-                    val alpha = (abs(weight).pow(alphaPower) * alphaFactor / divisor).coerceIn(0f, 1f)
-                    if (alpha >= minimumVisibleAlpha) {
-                        g.color =
-                            if (weight > 0f)
-                                Color(0f, 1f, 0f, alpha) // green
-                            else
-                                Color(1f, 0f, 0f, alpha) // red
-                        g.drawLine(
-                            (currX + currLayerView.getCellCenterX(currNeuron)).roundToInt(),
-                            (currY + currLayerView.getCellCenterY(currNeuron)).roundToInt(),
-                            (nextX + nextLayerView.getCellCenterX(nextNeuron)).roundToInt(),
-                            (nextY + nextLayerView.getCellCenterY(nextNeuron)).roundToInt(),
-                        )
+        fun draw(g: Graphics2D, x: Float, y: Float, enabled: Boolean) {
+            g.drawImage(if (enabled) enabledImage else disabledImage, x.roundToInt(), y.roundToInt(), null)
+        }
+
+        private val enabledImage by lazy {
+            BufferedImage(
+                hSize.roundToInt(),
+                vSize.roundToInt(),
+                BufferedImage.TYPE_INT_ARGB,
+            ).also {
+                val g = it.graphics as Graphics2D
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+                r.forEach { nextNeuron ->
+                    l.forEach { currNeuron ->
+                        val weight = readableLayer.getWeight(nextNeuron, currNeuron)
+                        val alpha = (abs(weight).pow(alphaPower) * alphaFactor / divisor).coerceIn(0f, 1f)
+                        if (alpha >= minimumVisibleAlpha) {
+                            g.color =
+                                if (weight > 0f)
+                                    Color(0f, 1f, 0f, alpha) // green
+                                else
+                                    Color(1f, 0f, 0f, alpha) // red
+                            g.drawLine(
+                                (l.getCellCenterX(currNeuron)).roundToInt(),
+                                (l.getCellCenterY(currNeuron) + lY).roundToInt(),
+                                (r.getCellCenterX(nextNeuron) + l.hSize + gapSize).roundToInt(),
+                                (r.getCellCenterY(nextNeuron) + rY).roundToInt(),
+                            )
+                        }
                     }
                 }
             }
         }
 
-        fun drawDisabled(
-            currX: Float,
-            height: Float,
-        ) {
-            val currY = (height - currLayerView.vSize) / 2
-            val nextY = (height - nextLayerView.vSize) / 2
-            val image = BufferedImage(
+        private val disabledImage by lazy {
+            BufferedImage(
                 hSize.roundToInt(),
                 vSize.roundToInt(),
-                BufferedImage.TYPE_INT_ARGB
-            )
-            val g = image.graphics
-            nextLayerView.forEach { nextNeuron ->
-                currLayerView.forEach { currNeuron ->
-                    val alpha = (0.5f * alphaFactor / divisor).coerceIn(0f, 1f)
-                    g.color = Util.gray(0.5f, alpha)
-                    g.drawLine(
-                        (currX + currLayerView.getCellCenterX(currNeuron)).roundToInt(),
-                        (currY + currLayerView.getCellCenterY(currNeuron)).roundToInt(),
-                        (currX + nextLayerView.getCellCenterX(nextNeuron) + currLayerView.hSize + hSize).roundToInt(),
-                        (nextY + nextLayerView.getCellCenterY(nextNeuron)).roundToInt(),
-                    )
+                BufferedImage.TYPE_INT_ARGB,
+            ).also {
+                val g = it.graphics as Graphics2D
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+                val alpha = (1f * alphaFactor / divisor).coerceIn(0f, 1f)
+                g.color = Util.gray(0.5f, alpha)
+                r.forEach { nextNeuron ->
+                    l.forEach { currNeuron ->
+                        g.drawLine(
+                            (l.getCellCenterX(currNeuron)).roundToInt(),
+                            (l.getCellCenterY(currNeuron) + lY).roundToInt(),
+                            (r.getCellCenterX(nextNeuron) + l.hSize + gapSize).roundToInt(),
+                            (r.getCellCenterY(nextNeuron) + rY).roundToInt(),
+                        )
+                    }
                 }
             }
         }

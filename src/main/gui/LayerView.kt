@@ -1,6 +1,7 @@
 package src.main.gui
 
 import src.main.util.Util
+import java.awt.Color
 import java.awt.Graphics2D
 import kotlin.math.roundToInt
 
@@ -35,7 +36,7 @@ interface LayerView : Iterable<Int> {
                 drawCell(g, i, x + getCellX(i), y + getCellY(i))
             }
         } else {
-            g.color = Util.HALF_GRAY
+            g.color = Color.GRAY
             g.fillRect(
                 x.roundToInt(),
                 y.roundToInt(),
