@@ -2,7 +2,7 @@ package src.main.gui
 
 import src.main.gui.layerview.LayerView
 import src.main.gui.vis.Visual
-import src.main.mlp.ReadableLayer
+import src.main.mlp.Weights
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
@@ -10,8 +10,8 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
-class WeightView(
-    val readableLayer: ReadableLayer,
+class WeightsView(
+    val weights: Weights,
     val l: LayerView,
     val r: LayerView,
     val lY: Float,
@@ -59,7 +59,7 @@ class WeightView(
             val g = GUIUtil.getSmoothGraphics(it.graphics)
             r.forEach { nextNeuron ->
                 l.forEach { currNeuron ->
-                    val weight = readableLayer.getWeight(nextNeuron, currNeuron)
+                    val weight = weights.getWeight(nextNeuron, currNeuron)
                     val alpha = (abs(weight).pow(alphaPower) * alphaFactor / divisor).coerceIn(0f, 1f)
                     if (alpha >= minimumVisibleAlpha) {
                         g.color =

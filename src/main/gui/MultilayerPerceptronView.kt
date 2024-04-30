@@ -90,10 +90,10 @@ class MultilayerPerceptronView(
         }
     }
 
-    private val weightViews = List(n - 1) { i ->
+    private val weightsViews = List(n - 1) { i ->
         val h = vSize
-        WeightView(
-            readableLayer = model.getReadableLayer(i),
+        WeightsView(
+            weights = model.getWeights(i),
             l = layerViews[i],
             r = layerViews[i + 1],
             lY = (h - layerViews[i].h) / 2,
@@ -240,7 +240,7 @@ class MultilayerPerceptronView(
             layerViews.forEachIndexed { index, layer ->
                 w += layer.w
                 if (index != n - 1)
-                    w += weightViews[index].gapSize
+                    w += weightsViews[index].gapSize
             }
             return w + margin * 2
         }
@@ -277,7 +277,7 @@ class MultilayerPerceptronView(
         var x: Float
 
         x = margin
-        weightViews.forEach {
+        weightsViews.forEach {
             val y = ((height - vSize) / 2)
             it.draw(g, x, y, showWeights)
             //drawOutline(g, x, y, it.hSize, it.vSize, 0f)
@@ -294,7 +294,7 @@ class MultilayerPerceptronView(
             GUIUtil.drawOutline(g, x, y, it.w, it.h, 4f)
             x += it.w
             if (i != n - 1)
-                x += weightViews[i].gapSize
+                x += weightsViews[i].gapSize
         }
     }
 }

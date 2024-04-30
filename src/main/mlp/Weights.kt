@@ -1,6 +1,5 @@
 package src.main.mlp
 
-interface ReadableLayer {
-    fun getBias(neuronIndex: Int): Float
+fun interface Weights {
     fun getWeight(neuronIndex: Int, prevNeuronIndex: Int): Float
 }

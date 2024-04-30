@@ -39,7 +39,7 @@ class MultilayerPerceptron private constructor(
     private class Layer(
         val neurons: Array<Neuron>,
         val activationFunction: ActivationFunction
-    ) : ReadableLayer {
+    ) {
         val size: Int get() = neurons.size
 
         fun forwardPropagate(input: FloatArray) =
@@ -50,12 +50,6 @@ class MultilayerPerceptron private constructor(
 
         override fun hashCode(): Int =
             neurons.contentHashCode() xor activationFunction.hashCode()
-
-        override fun getBias(neuronIndex: Int): Float =
-            neurons[neuronIndex].bias
-
-        override fun getWeight(neuronIndex: Int, prevNeuronIndex: Int): Float =
-            neurons[neuronIndex].weights[prevNeuronIndex]
     }
 
     private class Neuron(val bias: Float, val weights: FloatArray) {
@@ -69,8 +63,7 @@ class MultilayerPerceptron private constructor(
             bias.hashCode() xor weights.contentHashCode()
     }
 
-    fun getReadableLayer(index: Int): ReadableLayer =
-        layers[index]
+    fun getWeights(index: Int) = Weights { i, p -> layers[index].neurons[i].weights[p] }
 
     private fun randomNeuron(size: Int, random: Random) =
         Neuron(
