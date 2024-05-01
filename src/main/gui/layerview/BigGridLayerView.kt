@@ -1,13 +1,13 @@
 package src.main.gui.layerview
 
-import src.main.gui.vis.VHost
+import src.main.gui.MultilayerPerceptronView
 
 class BigGridLayerView(
-    override val host: VHost,
+    multilayerPerceptronView: MultilayerPerceptronView,
     override val hCellCount: Int,
     override val vCellCount: Int,
     override var cellSize: Float = 8f,
-) : AbstractLayerView(), BigLayerView, GridLayerView {
+) : AbstractLayerView(multilayerPerceptronView), BigLayerView, GridLayerView {
     override var data = FloatArray(cellCount)
 
     // TODO error

@@ -1,12 +1,17 @@
 package src.main.gui.layerview
 
 import src.main.gui.GUIUtil.createBoundCheckBoxMenuItem
+import src.main.gui.MultilayerPerceptronView
+import src.main.gui.vis.VHost
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
 import javax.swing.JSeparator
 import javax.swing.SwingConstants
 
-abstract class AbstractLayerView : LayerView {
+abstract class AbstractLayerView(final override val multilayerPerceptronView: MultilayerPerceptronView) : LayerView {
+
+    override val host: VHost by multilayerPerceptronView::host
+
     override var containsMouse: Boolean = false
     override var x: Float = 0f
     override var y: Float = 0f

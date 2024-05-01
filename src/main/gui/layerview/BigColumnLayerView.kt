@@ -1,12 +1,12 @@
 package src.main.gui.layerview
 
-import src.main.gui.vis.VHost
+import src.main.gui.MultilayerPerceptronView
 
 class BigColumnLayerView(
-    override val host: VHost,
+    multilayerPerceptronView: MultilayerPerceptronView,
     override val cellCount: Int,
     override var cellSize: Float = 8f,
-) : AbstractLayerView(), BigLayerView, ColumnLayerView {
+) : AbstractLayerView(multilayerPerceptronView), BigLayerView, ColumnLayerView {
     override var data = FloatArray(cellCount)
 
     // TODO error

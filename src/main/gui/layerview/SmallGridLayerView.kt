@@ -1,15 +1,15 @@
 package src.main.gui.layerview
 
-import src.main.gui.vis.VHost
+import src.main.gui.MultilayerPerceptronView
 
 class SmallGridLayerView(
-    override val host: VHost,
+    multilayerPerceptronView: MultilayerPerceptronView,
     override val hCellCount: Int,
     override val vCellCount: Int,
     override var cellSize: Float = 32f,
     override var hSep: Float = cellSize * 0.5f,
     override var vSep: Float = cellSize * 0.5f,
-) : AbstractLayerView(), SmallLayerView, GridLayerView {
+) : AbstractLayerView(multilayerPerceptronView), SmallLayerView, GridLayerView {
     override var data = FloatArray(cellCount)
 
     override val w

@@ -4,6 +4,7 @@ import src.main.gui.GUIUtil
 import src.main.gui.GUIUtil.drawOutline
 import src.main.gui.GUIUtil.fillOutline
 import src.main.gui.GUIUtil.showPopupMenu
+import src.main.gui.MultilayerPerceptronView
 import src.main.gui.vis.MouseButton
 import src.main.gui.vis.Visual
 import java.awt.Color
@@ -20,6 +21,8 @@ interface LayerView :
     Visual.ListensToMouseDrag,
     Visual.ListensToMouseRelease,
     Iterable<Int> {
+
+    val multilayerPerceptronView: MultilayerPerceptronView
 
     val cellCount: Int
     var cellSize: Float
@@ -64,7 +67,8 @@ interface LayerView :
     override fun onMouseRelease(x: Float, y: Float, b: MouseButton) {
         when (b) {
             MouseButton.LEFT -> {
-//            forwardPropagateStartingFrom()
+                if (editing)
+                    forwardPropagateStartingFrom()
             }
 
             MouseButton.RIGHT -> {
