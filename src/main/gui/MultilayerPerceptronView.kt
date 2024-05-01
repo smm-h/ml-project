@@ -151,19 +151,28 @@ class MultilayerPerceptronView(
         input = FloatArray(structure.inputSize)
     }
 
-    private val popUp = JPopupMenu().apply {
-        add(JCheckBoxMenuItem("Show border").apply {
+    private val mnuShowBorder =
+        JCheckBoxMenuItem("Show border").apply {
             state = showBorder
             addActionListener { showBorder = state }
-        })
-        add(JCheckBoxMenuItem("Show hidden layers").apply {
+        }
+
+    private val mnuShowHiddenLayers =
+        JCheckBoxMenuItem("Show hidden layers").apply {
             state = showHiddenLayers
             addActionListener { showHiddenLayers = state }
-        })
-        add(JCheckBoxMenuItem("Show weights").apply {
+        }
+
+    private val mnuShowWeights =
+        JCheckBoxMenuItem("Show weights").apply {
             state = showWeights
             addActionListener { showWeights = state }
-        })
+        }
+
+    private val popUp = JPopupMenu().apply {
+        add(mnuShowBorder)
+        add(mnuShowHiddenLayers)
+        add(mnuShowWeights)
     }
 
     override fun onMouseRelease(x: Float, y: Float, b: MouseButton) {

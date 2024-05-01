@@ -10,59 +10,69 @@ class Menu(val gui: GUI) : JMenuBar() {
 
     // TODO keyboard shortcuts
 
-    val File = JMenu("File").also {
-        add(it)
-        it.mnemonic = KeyEvent.VK_F
-    }
+    val mnuFile =
+        JMenu("File").also {
+            add(it)
+            it.mnemonic = KeyEvent.VK_F
+        }
 
-    val New = JMenuItem("New").also {
-        File.add(it)
-        it.mnemonic = KeyEvent.VK_N
-        it.addActionListener { gui.new() }
-    }
+    val mnuNew =
+        JMenuItem("New").also {
+            mnuFile.add(it)
+            it.mnemonic = KeyEvent.VK_N
+            it.addActionListener { gui.new() }
+        }
 
-    val Open = JMenuItem("Open").also {
-        File.add(it)
-        it.mnemonic = KeyEvent.VK_O
-        it.addActionListener { gui.open() }
-    }
+    val mnuOpen =
+        JMenuItem("Open").also {
+            mnuFile.add(it)
+            it.mnemonic = KeyEvent.VK_O
+            it.addActionListener { gui.open() }
+        }
 
-    val Save = JMenuItem("Save").also {
-        File.add(it)
-        it.mnemonic = KeyEvent.VK_S
-        it.addActionListener { gui.save() }
-    }
+    val mnuSave =
+        JMenuItem("Save").also {
+            mnuFile.add(it)
+            it.mnemonic = KeyEvent.VK_S
+            it.addActionListener { gui.save() }
+        }
 
-    val SaveAs = JMenuItem("Save As").also {
-        File.add(it)
-        it.mnemonic = KeyEvent.VK_A
-        it.addActionListener { gui.saveAs() }
-    }
+    val mnuSaveAs =
+        JMenuItem("Save As").also {
+            mnuFile.add(it)
+            it.mnemonic = KeyEvent.VK_A
+            it.addActionListener { gui.saveAs() }
+        }
 
-    val Exit = JMenuItem("Exit").also {
-        File.add(JSeparator(SwingConstants.HORIZONTAL))
-        File.add(it)
-        it.addActionListener { gui.exit() }
-    }
+    val mnuExit =
+        JMenuItem("Exit").also {
+            mnuFile.add(JSeparator(SwingConstants.HORIZONTAL))
+            mnuFile.add(it)
+            it.addActionListener { gui.exit() }
+        }
 
-    val View = JMenu("View").also {
-        add(it)
-        it.mnemonic = KeyEvent.VK_V
-    }
+    val mnuView =
+        JMenu("View").also {
+            add(it)
+            it.mnemonic = KeyEvent.VK_V
+        }
 
-    val EnableDarkMode = JCheckBoxMenuItem("Enable dark mode").also {
-        View.add(it)
-        it.state = gui.darkMode
-        it.addActionListener { _ -> gui.darkMode = it.state }
-    }
+    val mnuEnableDarkMode =
+        JCheckBoxMenuItem("Enable dark mode").also {
+            mnuView.add(it)
+            it.state = gui.darkMode
+            it.addActionListener { _ -> gui.darkMode = it.state }
+        }
 
-    val Help = JMenu("Help").also {
-        add(it)
-        it.mnemonic = KeyEvent.VK_H
-    }
+    val mnuHelp =
+        JMenu("Help").also {
+            add(it)
+            it.mnemonic = KeyEvent.VK_H
+        }
 
-    val About = JMenuItem("About").also {
-        Help.add(it)
-        it.addActionListener { showMessageDialog(null, "By SMMH") }
-    }
+    val mnuAbout =
+        JMenuItem("About").also {
+            mnuHelp.add(it)
+            it.addActionListener { showMessageDialog(null, "By SMMH") }
+        }
 }

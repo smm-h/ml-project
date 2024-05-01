@@ -16,10 +16,11 @@ abstract class AbstractLayerView : LayerView {
             host.redraw()
         }
 
-    private val mnuShowCells = JCheckBoxMenuItem("Show cells").apply {
-        state = showCells
-        addActionListener { showCells = state }
-    }
+    private val mnuShowCells =
+        JCheckBoxMenuItem("Show cells").apply {
+            state = showCells
+            addActionListener { showCells = state }
+        }
 
     override var editing: Boolean = false
         set(value) {
@@ -31,26 +32,29 @@ abstract class AbstractLayerView : LayerView {
             host.redraw()
         }
 
-    private val mnuEditing = JCheckBoxMenuItem("Enable editing").apply {
-        state = editing
-        addActionListener { editing = state }
-    }
-
-    private val mnuClear = JMenuItem("Clear").apply {
-        isEnabled = false
-        addActionListener { data = FloatArray(cellCount) }
-    }
-
-    private val mnuRandomize = JMenuItem("Randomize").apply {
-        isEnabled = false
-        addActionListener { data = FloatArray(cellCount) { Math.random().toFloat() } }
-    }
-
-    private val mnuProperties = JMenuItem("Properties").apply {
-        addActionListener {
-
+    private val mnuEditing =
+        JCheckBoxMenuItem("Enable editing").apply {
+            state = editing
+            addActionListener { editing = state }
         }
-    }
+
+    private val mnuClear =
+        JMenuItem("Clear").apply {
+            isEnabled = false
+            addActionListener { data = FloatArray(cellCount) }
+        }
+
+    private val mnuRandomize =
+        JMenuItem("Randomize").apply {
+            isEnabled = false
+            addActionListener { data = FloatArray(cellCount) { Math.random().toFloat() } }
+        }
+
+    private val mnuProperties =
+        JMenuItem("Properties").apply {
+            addActionListener {
+            }
+        }
 
     override val popupMenu = JPopupMenu().apply {
         add(mnuShowCells)
