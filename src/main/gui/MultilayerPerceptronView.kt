@@ -1,10 +1,8 @@
 package src.main.gui
 
 import src.main.gui.GUIUtil.by
-import src.main.gui.layerview.BigColumnLayerView
-import src.main.gui.layerview.BigGridLayerView
-import src.main.gui.layerview.SmallColumnLayerView
-import src.main.gui.layerview.SmallGridLayerView
+import src.main.gui.GUIUtil.redraw
+import src.main.gui.layerview.*
 import src.main.gui.vis.Visual
 import src.main.mlp.MultilayerPerceptron
 import src.main.mnist.MNIST
@@ -34,11 +32,13 @@ class MultilayerPerceptronView(
     private var showHiddenLayers = true
         set(value) {
             field = value
+            layerViews.forEachIndexed { i, it -> it.showCells = value || i == 0 || i == n - 1 }
             redraw()
         }
     private var showWeights = true
         set(value) {
             field = value
+            weightsViews.forEach { it.enabled = value }
             redraw()
         }
     private var showBorder = true
@@ -75,19 +75,19 @@ class MultilayerPerceptronView(
             val mh = 200f
             if (s > 16) {
                 val cellSize = round(mh / s).coerceAtLeast(1f)
-                BigColumnLayerView(s, cellSize)
+                BigColumnLayerView(this, s, cellSize)
             } else {
                 val vSep = round(mh / 4 / s).coerceAtLeast(1f)
                 val cellSize = vSep * 3
-                SmallColumnLayerView(s, cellSize, vSep)
+                SmallColumnLayerView(this, s, cellSize, vSep)
             }
         } else {
             val w = d.width
             val h = d.height
             if (max(w, h) > 16) {
-                BigGridLayerView(w, h)
+                BigGridLayerView(this, w, h)
             } else {
-                SmallGridLayerView(w, h)
+                SmallGridLayerView(this, w, h)
             }
         }
     }
@@ -114,9 +114,7 @@ class MultilayerPerceptronView(
         private var isLeftMouseButtonDown = false
 
         override fun mousePressed(e: MouseEvent) {
-            if (e.isPopupTrigger) {
-                triggerPopup(e)
-            } else when (e.button) {
+            when (e.button) {
                 MouseEvent.BUTTON1 -> {
                     val l = layerViews.first()
                     val rx: Float = e.x - padding
@@ -131,11 +129,25 @@ class MultilayerPerceptronView(
         }
 
         override fun mouseReleased(e: MouseEvent) {
-            if (e.isPopupTrigger) {
-                triggerPopup(e)
-            } else if (isLeftMouseButtonDown && e.button == MouseEvent.BUTTON1) {
-                isLeftMouseButtonDown = false
-                forwardPropagate()
+            when (e.button) {
+                MouseEvent.BUTTON1 -> {
+                    if (isLeftMouseButtonDown) {
+                        isLeftMouseButtonDown = false
+                        forwardPropagate()
+                    }
+                }
+
+                MouseEvent.BUTTON3 -> {
+                    val v = visualsContainingMouse.elementAtOrNull(0)
+                    val p =
+                        if (v == null)
+                            popUp
+                        else
+                            (v as LayerView).popupMenu
+                    p.show(e.component, e.x, e.y)
+                }
+
+                else -> Unit
             }
         }
 
@@ -196,10 +208,6 @@ class MultilayerPerceptronView(
         addMouseMotionListener(it)
     }
 
-    private fun triggerPopup(e: MouseEvent) {
-        popUp.show(e.component, e.x, e.y)
-    }
-
     private val popUp = JPopupMenu().apply {
         add(JMenuItem("Clear input").apply {
             addActionListener {
@@ -218,22 +226,16 @@ class MultilayerPerceptronView(
         })
         add(JSeparator())
         add(JCheckBoxMenuItem("Show border").apply {
-            this.state = showBorder
-            this.addActionListener {
-                showBorder = state
-            }
+            state = showBorder
+            addActionListener { showBorder = state }
         })
         add(JCheckBoxMenuItem("Show hidden layers").apply {
-            this.state = showHiddenLayers
-            this.addActionListener {
-                showHiddenLayers = state
-            }
+            state = showHiddenLayers
+            addActionListener { showHiddenLayers = state }
         })
         add(JCheckBoxMenuItem("Show weights").apply {
-            this.state = showWeights
-            this.addActionListener {
-                showWeights = state
-            }
+            state = showWeights
+            addActionListener { showWeights = state }
         })
     }
 
@@ -269,11 +271,6 @@ class MultilayerPerceptronView(
         redraw()
     }
 
-    private fun redraw() {
-        revalidate()
-        repaint()
-    }
-
     override fun paintComponent(g0: Graphics?) {
         super.paintComponent(g0)
         val g = GUIUtil.getSmoothGraphics(g0)
@@ -287,9 +284,7 @@ class MultilayerPerceptronView(
         weightsViews.forEach {
             it.x = x
             it.y = ((height - vSize) / 2)
-            it.enabled = showWeights
             it.draw(g)
-            //GUIUtil.drawOutline(g, x, y, it.hSize, it.vSize, 0f)
             x += it.l.w + it.gapSize
         }
 
@@ -298,9 +293,7 @@ class MultilayerPerceptronView(
             val y = (height - it.h) / 2
             it.x = x
             it.y = y
-            it.enabled = showHiddenLayers || i == 0 || i == n - 1
             it.draw(g)
-//            GUIUtil.drawOutline(g, x, y, it.w, it.h, 4f)
             x += it.w
             if (i != n - 1)
                 x += weightsViews[i].gapSize

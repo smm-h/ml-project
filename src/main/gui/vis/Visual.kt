@@ -1,6 +1,7 @@
 package src.main.gui.vis
 
 import java.awt.Graphics2D
+import javax.swing.JComponent
 
 interface Visual {
     val x: Float
@@ -13,4 +14,6 @@ interface Visual {
     fun contains(x: Float, y: Float, margin: Float): Boolean
 
     fun draw(g: Graphics2D)
+
+    val host: JComponent
 }

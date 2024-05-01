@@ -1,9 +1,12 @@
 package src.main.gui.layerview
 
 import src.main.gui.GUIUtil
+import src.main.gui.GUIUtil.drawOutline
+import src.main.gui.GUIUtil.fillOutline
 import src.main.gui.vis.Rectangular
 import java.awt.Color
 import java.awt.Graphics2D
+import javax.swing.JPopupMenu
 import kotlin.math.roundToInt
 
 /**
@@ -18,7 +21,10 @@ interface LayerView : Iterable<Int>, Rectangular {
     override val h: Float
 
     var data: FloatArray
-    var enabled: Boolean
+    var showCells: Boolean
+    var editing: Boolean
+
+    val popupMenu: JPopupMenu
 
     override fun iterator(): Iterator<Int> = (0 until cellCount).iterator()
 
@@ -29,7 +35,11 @@ interface LayerView : Iterable<Int>, Rectangular {
     fun getCellCenterY(cellIndex: Int) = getCellY(cellIndex) + cellSize / 2f
 
     override fun draw(g: Graphics2D) {
-        if (enabled) {
+        if (containsMouse) {
+            g.color = GUIUtil.QUARTER_GRAY
+            g.fillOutline(x, y, w, h, 4f)
+        }
+        if (showCells) {
             forEach { i ->
                 drawCell(g, i, x + getCellX(i), y + getCellY(i))
             }
@@ -44,7 +54,7 @@ interface LayerView : Iterable<Int>, Rectangular {
         }
         if (containsMouse) {
             g.color = Color.GRAY
-            GUIUtil.drawOutline(g, x, y, w, h, 4f)
+            g.drawOutline(x, y, w, h, 4f)
         }
     }
 

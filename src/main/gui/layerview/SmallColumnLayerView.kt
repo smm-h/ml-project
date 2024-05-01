@@ -1,6 +1,9 @@
 package src.main.gui.layerview
 
+import javax.swing.JComponent
+
 class SmallColumnLayerView(
+    override val host: JComponent,
     override val cellCount: Int,
     override var cellSize: Float = 32f,
     var vSep: Float = cellSize * 0.5f,

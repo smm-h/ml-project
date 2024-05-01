@@ -1,6 +1,7 @@
 package src.main.gui
 
 import java.awt.*
+import javax.swing.JComponent
 import kotlin.math.roundToInt
 
 object GUIUtil {
@@ -45,14 +46,48 @@ object GUIUtil {
         )
     }
 
-    fun drawOutline(g: Graphics2D, x: Float, y: Float, w: Float, h: Float, margin: Float) {
+    fun JComponent.redraw() {
+        revalidate()
+        repaint()
+    }
+
+    fun Graphics2D.drawOutline(x: Float, y: Float, w: Float, h: Float, margin: Float) {
         val arc = (margin * 2).roundToInt().coerceAtLeast(1)
-        g.drawRoundRect(
+        drawRoundRect(
             (x - margin).roundToInt(),
             (y - margin).roundToInt(),
             (w + margin * 2).roundToInt(),
             (h + margin * 2).roundToInt(),
             arc, arc,
+        )
+    }
+
+    fun Graphics2D.fillOutline(x: Float, y: Float, w: Float, h: Float, margin: Float) {
+        val arc = (margin * 2).roundToInt().coerceAtLeast(1)
+        fillRoundRect(
+            (x - margin).roundToInt(),
+            (y - margin).roundToInt(),
+            (w + margin * 2).roundToInt(),
+            (h + margin * 2).roundToInt(),
+            arc, arc,
+        )
+    }
+
+    fun Graphics2D.drawRectFloat(x: Float, y: Float, w: Float, h: Float) {
+        drawRect(
+            x.roundToInt(),
+            y.roundToInt(),
+            w.roundToInt(),
+            h.roundToInt(),
+        )
+    }
+
+    fun Graphics2D.fillRectFloat(x: Float, y: Float, w: Float, h: Float) {
+        fillRect(
+            x.roundToInt(),
+            y.roundToInt(),
+            w.roundToInt(),
+            h.roundToInt(),
         )
     }
 }

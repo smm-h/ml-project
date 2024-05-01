@@ -1,6 +1,9 @@
 package src.main.gui.layerview
 
+import javax.swing.JComponent
+
 class BigColumnLayerView(
+    override val host: JComponent,
     override val cellCount: Int,
     override var cellSize: Float = 8f,
 ) : AbstractLayerView(), BigLayerView, ColumnLayerView {

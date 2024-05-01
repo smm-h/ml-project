@@ -1,6 +1,9 @@
 package src.main.gui.layerview
 
+import javax.swing.JComponent
+
 class BigGridLayerView(
+    override val host: JComponent,
     override val hCellCount: Int,
     override val vCellCount: Int,
     override var cellSize: Float = 8f,
