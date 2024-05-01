@@ -15,7 +15,7 @@ interface VHost {
 
     var rootVisual: Visual?
 
-    fun register(it: Visual)
+    fun register(it: ListensTo)
 
     fun redraw()
 }

@@ -42,37 +42,4 @@ interface Visual {
         override fun contains(x: Float, y: Float, margin: Float): Boolean =
             sqrt(sqr(this.x - x) + sqr(this.y - y)) <= radius + margin
     }
-
-    interface ListensToMouseDrag : Visual {
-        fun onMouseDrag(x: Float, y: Float)
-    }
-
-    interface ListensToMouseMove : Visual {
-        fun onMouseMove(x: Float, y: Float)
-    }
-
-    interface Hoverable : ListensToMouseMove {
-        var containsMouse: Boolean
-
-        override fun onMouseMove(x: Float, y: Float) {
-            val s = contains(x, y, 2f)
-            if (containsMouse != s) {
-                containsMouse = s
-                if (s) {
-                    host.atMouse.add(this)
-                } else {
-                    host.atMouse.remove(this)
-                }
-                host.redraw()
-            }
-        }
-    }
-
-    interface ListensToMousePress : Hoverable {
-        fun onMousePress(x: Float, y: Float, b: MouseButton)
-    }
-
-    interface ListensToMouseRelease : Hoverable {
-        fun onMouseRelease(x: Float, y: Float, b: MouseButton)
-    }
 }

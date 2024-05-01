@@ -4,9 +4,9 @@ import src.main.gui.GUIUtil.createBoundCheckBoxMenuItem
 import src.main.gui.GUIUtil.drawOutline
 import src.main.gui.GUIUtil.showPopupMenu
 import src.main.gui.layerview.*
+import src.main.gui.vis.ListensTo
 import src.main.gui.vis.MouseButton
 import src.main.gui.vis.VHost
-import src.main.gui.vis.Visual
 import src.main.mlp.MultilayerPerceptron
 import java.awt.Dimension
 import java.awt.Graphics2D
@@ -20,7 +20,7 @@ class MultilayerPerceptronView(
     override val host: VHost,
     private val filename: String,
     vararg gridLayers: Pair<Int, Dimension>,
-) : Visual.ListensToMouseRelease {
+) : ListensTo.MouseRelease {
 
     override var containsMouse: Boolean = false
 
@@ -134,7 +134,7 @@ class MultilayerPerceptronView(
             alphaFactor = 1f,
             minimumVisibleAlpha = 0.01f,
         )
-        host.register(v)
+        // TODO host.register(v)
         v
     }
 

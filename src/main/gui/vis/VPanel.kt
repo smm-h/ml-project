@@ -5,9 +5,7 @@ import src.main.gui.GUIUtil.by
 import src.main.gui.GUIUtil.mouseButton
 import java.awt.Graphics
 import java.awt.GridBagLayout
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
-import java.awt.event.MouseMotionListener
+import java.awt.event.*
 import java.util.*
 import javax.swing.JPanel
 import kotlin.math.roundToInt
@@ -18,16 +16,20 @@ class VPanel : VHost {
 
     override val mouseButtonDown = BooleanArray(MouseButton.entries.size)
 
-    private val mpl = mutableListOf<Visual.ListensToMousePress>()
-    private val mrl = mutableListOf<Visual.ListensToMouseRelease>()
-    private val mml = mutableListOf<Visual.ListensToMouseMove>()
-    private val mdl = mutableListOf<Visual.ListensToMouseDrag>()
+    private val mpl = mutableListOf<ListensTo.MousePress>()
+    private val mrl = mutableListOf<ListensTo.MouseRelease>()
+    private val mml = mutableListOf<ListensTo.MouseMove>()
+    private val mdl = mutableListOf<ListensTo.MouseDrag>()
+    private val kpl = mutableListOf<ListensTo.KeyPress>()
+    private val krl = mutableListOf<ListensTo.KeyRelease>()
 
-    override fun register(it: Visual) {
-        if (it is Visual.ListensToMousePress) mpl.add(it)
-        if (it is Visual.ListensToMouseRelease) mrl.add(it)
-        if (it is Visual.ListensToMouseMove) mml.add(it)
-        if (it is Visual.ListensToMouseDrag) mdl.add(it)
+    override fun register(it: ListensTo) {
+        if (it is ListensTo.MousePress) mpl.add(it)
+        if (it is ListensTo.MouseRelease) mrl.add(it)
+        if (it is ListensTo.MouseMove) mml.add(it)
+        if (it is ListensTo.MouseDrag) mdl.add(it)
+        if (it is ListensTo.KeyPress) kpl.add(it)
+        if (it is ListensTo.KeyRelease) krl.add(it)
     }
 
     override val atMouse = PriorityQueue<Visual> { v1, v2 -> (v1.area - v2.area).roundToInt() }
@@ -77,6 +79,16 @@ class VPanel : VHost {
         }
     }
 
+    private val keyListener = object : KeyAdapter() {
+        override fun keyPressed(e: KeyEvent) {
+            kpl.forEach { it.onKeyPress(e.keyCode) }
+        }
+
+        override fun keyReleased(e: KeyEvent) {
+            krl.forEach { it.onKeyRelease(e.keyCode) }
+        }
+    }
+
     override var rootVisual: Visual? = null
         set(value) {
             field = value
@@ -92,6 +104,7 @@ class VPanel : VHost {
     }.apply {
         addMouseListener(mouseListener)
         addMouseMotionListener(mouseMotionListener)
+        addKeyListener(keyListener)
     }
 
     override val width: Int get() = jPanel.width

@@ -5,6 +5,7 @@ import src.main.gui.GUIUtil.drawOutline
 import src.main.gui.GUIUtil.fillOutline
 import src.main.gui.GUIUtil.showPopupMenu
 import src.main.gui.MultilayerPerceptronView
+import src.main.gui.vis.ListensTo
 import src.main.gui.vis.MouseButton
 import src.main.gui.vis.Visual
 import java.awt.Color
@@ -17,9 +18,9 @@ import javax.swing.JPopupMenu
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 interface LayerView :
     Visual.Movable,
-    Visual.Hoverable,
-    Visual.ListensToMouseDrag,
-    Visual.ListensToMouseRelease,
+    ListensTo.Hover,
+    ListensTo.MouseDrag,
+    ListensTo.MouseRelease,
     Iterable<Int> {
 
     val multilayerPerceptronView: MultilayerPerceptronView

@@ -31,7 +31,7 @@ class WeightsView(
 
     var enabled: Boolean = true
 
-    //    Area.Circular
+    //    TODO Area.Circular
 //    override val radius: Float
 //        get() = gapSize
 
