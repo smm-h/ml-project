@@ -100,7 +100,7 @@ class MultilayerPerceptronView(
     }
 
     private val weightsViews = VLayer<WeightsView>(host).apply {
-        for (i in 0 until n) {
+        for (i in 0 until n - 1) {
             val h = h
             val v = WeightsView(
                 host = host,
@@ -120,7 +120,7 @@ class MultilayerPerceptronView(
         }
     }
 
-    fun reposition() {
+    private fun reposition() {
         var x: Float
         x = host.padding
         weightsViews.visuals.forEach {
@@ -144,6 +144,8 @@ class MultilayerPerceptronView(
         host.addLayer(weightsViews)
         host.addLayer(layerViews)
         reposition()
+        host.setSize(w, h)
+        input = FloatArray(structure.inputSize)
     }
 
     private val popUp = JPopupMenu().apply {
@@ -177,11 +179,6 @@ class MultilayerPerceptronView(
         })
     }
 
-    init {
-        updateSize()
-        input = FloatArray(structure.inputSize)
-    }
-
     override val w: Float
         get() {
             var w = 0f
@@ -203,11 +200,5 @@ class MultilayerPerceptronView(
         }
 
     override fun draw(g: Graphics2D) {
-        layerViews.draw(g)
-        weightsViews.draw(g)
-    }
-
-    private fun updateSize() {
-        host.setSize(w, h)
     }
 }

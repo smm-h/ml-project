@@ -2,8 +2,11 @@ package src.main.gui.vis
 
 import src.main.gui.GUIUtil
 import src.main.gui.GUIUtil.by
+import src.main.gui.GUIUtil.drawOutline
 import src.main.gui.GUIUtil.mouseButton
+import java.awt.Color
 import java.awt.Graphics
+import java.awt.GridBagLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionListener
@@ -66,15 +69,15 @@ class VPanel : VHost {
         layers.add(layer)
     }
 
-    private val jPanel = object : JPanel() {
+    val jPanel = object : JPanel(GridBagLayout()) {
         override fun paintComponent(g0: Graphics?) {
             super.paintComponent(g0)
             val g = GUIUtil.getSmoothGraphics(g0)
             for (layer in layers) {
                 layer.draw(g)
             }
-//            if (showBorder)
-//                g.drawOutline(0f, 0f, width.toFloat(), height.toFloat(), -padding / 2)
+            g.color = Color.BLUE
+            g.drawOutline(0f, 0f, width.toFloat(), height.toFloat(), -padding / 2)
         }
     }.apply {
         addMouseListener(mouseListener)
@@ -86,6 +89,7 @@ class VPanel : VHost {
 
     override fun setSize(w: Float, h: Float) {
         val size = w by h
+        println(size)
         jPanel.size = size
         jPanel.preferredSize = size
         jPanel.minimumSize = size
