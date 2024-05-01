@@ -77,19 +77,17 @@ class VPanel : VHost {
         }
     }
 
-    private val layers = mutableListOf<VLayer<*>>()
-
-    override fun addLayer(layer: VLayer<*>) {
-        layers.add(layer)
-    }
+    override var rootVisual: Visual? = null
+        set(value) {
+            field = value
+            redraw()
+        }
 
     val jPanel = object : JPanel(GridBagLayout()) {
         override fun paintComponent(g0: Graphics?) {
             super.paintComponent(g0)
             val g = GUIUtil.getSmoothGraphics(g0)
-            for (layer in layers) {
-                layer.draw(g)
-            }
+            rootVisual?.draw(g)
         }
     }.apply {
         addMouseListener(mouseListener)
@@ -101,7 +99,6 @@ class VPanel : VHost {
 
     override fun setSize(w: Float, h: Float) {
         val size = w by h
-        println(size)
         jPanel.size = size
         jPanel.preferredSize = size
         jPanel.minimumSize = size

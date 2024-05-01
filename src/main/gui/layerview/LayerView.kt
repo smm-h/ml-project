@@ -67,8 +67,10 @@ interface LayerView :
     override fun onMouseRelease(x: Float, y: Float, b: MouseButton) {
         when (b) {
             MouseButton.LEFT -> {
-                if (editing)
-                    forwardPropagateStartingFrom()
+                if (editing) {
+                    multilayerPerceptronView.lastChangedLayer = this
+                    host.redraw()
+                }
             }
 
             MouseButton.RIGHT -> {

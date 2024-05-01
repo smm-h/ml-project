@@ -13,7 +13,7 @@ interface VHost {
 
     val atMouse: Queue<Visual>
 
-    fun addLayer(layer: VLayer<*>)
+    var rootVisual: Visual?
 
     fun register(it: Visual)
 
