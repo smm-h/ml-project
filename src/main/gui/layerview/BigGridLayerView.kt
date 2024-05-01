@@ -10,6 +10,14 @@ class BigGridLayerView(
 ) : AbstractLayerView(), BigLayerView, GridLayerView {
     override var data = FloatArray(cellCount)
 
+    // TODO error
+    override var hSep: Float
+        get() = 0f
+        set(_) {}
+    override var vSep: Float
+        get() = 0f
+        set(_) {}
+
     override val w
         get() = hCellCount * cellSize
     override val h

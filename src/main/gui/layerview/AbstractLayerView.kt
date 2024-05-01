@@ -11,12 +11,12 @@ abstract class AbstractLayerView : LayerView {
         set(value) {
             println(value)
             field = value
-            if (showCellsCheckBoxMenuItem.state != value)
-                showCellsCheckBoxMenuItem.state = value
+            if (mnuShowCells.state != value)
+                mnuShowCells.state = value
             host.redraw()
         }
 
-    private val showCellsCheckBoxMenuItem = JCheckBoxMenuItem("Show cells").apply {
+    private val mnuShowCells = JCheckBoxMenuItem("Show cells").apply {
         state = showCells
         addActionListener { showCells = state }
     }
@@ -24,20 +24,41 @@ abstract class AbstractLayerView : LayerView {
     override var editing: Boolean = false
         set(value) {
             field = value
-            if (editingJCheckBoxMenuItem.state != value)
-                editingJCheckBoxMenuItem.state = value
+            if (mnuEditing.state != value)
+                mnuEditing.state = value
+            mnuClear.isEnabled = value
+            mnuRandomize.isEnabled = value
             host.redraw()
         }
 
-    private val editingJCheckBoxMenuItem = JCheckBoxMenuItem("Enable editing").apply {
+    private val mnuEditing = JCheckBoxMenuItem("Enable editing").apply {
         state = editing
         addActionListener { editing = state }
     }
 
+    private val mnuClear = JMenuItem("Clear").apply {
+        isEnabled = false
+        addActionListener { data = FloatArray(cellCount) }
+    }
+
+    private val mnuRandomize = JMenuItem("Randomize").apply {
+        isEnabled = false
+        addActionListener { data = FloatArray(cellCount) { Math.random().toFloat() } }
+    }
+
+    private val mnuProperties = JMenuItem("Properties").apply {
+        addActionListener {
+
+        }
+    }
+
     override val popupMenu = JPopupMenu().apply {
-        add(showCellsCheckBoxMenuItem)
-        add(editingJCheckBoxMenuItem)
+        add(mnuShowCells)
+        add(mnuEditing)
         add(JSeparator(SwingConstants.HORIZONTAL))
-        add(JMenuItem("Properties"))
+        add(mnuClear)
+        add(mnuRandomize)
+        add(JSeparator(SwingConstants.HORIZONTAL))
+        add(mnuProperties)
     }
 }

@@ -9,6 +9,11 @@ class BigColumnLayerView(
 ) : AbstractLayerView(), BigLayerView, ColumnLayerView {
     override var data = FloatArray(cellCount)
 
+    // TODO error
+    override var vSep: Float
+        get() = 0f
+        set(_) {}
+
     override val w
         get() = cellSize
     override val h

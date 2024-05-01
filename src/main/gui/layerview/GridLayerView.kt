@@ -5,6 +5,10 @@ import src.main.gui.vis.MouseButton
 interface GridLayerView : LayerView {
     val hCellCount: Int
     val vCellCount: Int
+
+    var hSep: Float
+    var vSep: Float
+
     override val cellCount: Int
         get() = hCellCount * vCellCount
 
@@ -15,10 +19,10 @@ interface GridLayerView : LayerView {
     operator fun get(i: Int, j: Int): Float = data[i + j * hCellCount]
 
     override fun onMouseDrag(x: Float, y: Float) {
-        if (containsMouse && host.mouseButtonDown[MouseButton.LEFT.ordinal]) {
+        if (editing && containsMouse && host.mouseButtonDown[MouseButton.LEFT.ordinal]) {
             val sgn = 1 // TODO -1
-            val i = ((x - this.x) / cellSize).toInt()
-            val j = ((y - this.y) / cellSize).toInt()
+            val i = ((x - this.x) / (cellSize + hSep)).toInt()
+            val j = ((y - this.y) / (cellSize + vSep)).toInt()
             if (i in 0..hCellCount && j in 0..vCellCount) {
                 val iM = i > 0
                 val jM = j > 0

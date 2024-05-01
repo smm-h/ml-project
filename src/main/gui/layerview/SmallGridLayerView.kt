@@ -7,8 +7,8 @@ class SmallGridLayerView(
     override val hCellCount: Int,
     override val vCellCount: Int,
     override var cellSize: Float = 32f,
-    var hSep: Float = cellSize * 0.5f,
-    var vSep: Float = cellSize * 0.5f,
+    override var hSep: Float = cellSize * 0.5f,
+    override var vSep: Float = cellSize * 0.5f,
 ) : AbstractLayerView(), SmallLayerView, GridLayerView {
     override var data = FloatArray(cellCount)
 

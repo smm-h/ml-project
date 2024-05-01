@@ -40,7 +40,7 @@ class MultilayerPerceptronView(
             weightsViews.visuals.forEach { it.enabled = value }
             host.redraw()
         }
-    private var showBorder = true
+    private var showBorder = false
         set(value) {
             field = value
             host.redraw()
