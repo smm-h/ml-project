@@ -1,7 +1,5 @@
 package src.main.gui.layerview
 
-import src.main.gui.vis.MouseButton
-
 interface ColumnLayerView : LayerView {
     var vSep: Float
 
@@ -12,7 +10,7 @@ interface ColumnLayerView : LayerView {
     operator fun get(i: Int): Float = data[i]
 
     override fun onMouseDrag(x: Float, y: Float) {
-        if (editing && containsMouse && host.mouseButtonDown[MouseButton.LEFT.ordinal]) {
+        if (editing && containsMouse && host.isMouseLeftButtonDown) {
             val sgn = 1 // TODO -1
             val i = ((x - this.x) / (cellSize)).toInt()
             val j = ((y - this.y) / (cellSize + vSep)).toInt()

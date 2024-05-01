@@ -14,7 +14,18 @@ class VPanel : VHost {
 
     override var padding: Float = 8f
 
-    override val mouseButtonDown = BooleanArray(MouseButton.entries.size)
+    private val mouseButtonDown = BooleanArray(MouseButton.entries.size)
+
+    override val isMouseLeftButtonDown: Boolean get() = mouseButtonDown[0]
+    override val isMouseRightButtonDown: Boolean get() = mouseButtonDown[1]
+    override val isMouseMiddleButtonDown: Boolean get() = mouseButtonDown[2]
+
+    override var isControlDown = false
+        private set
+    override var isShiftDown = false
+        private set
+    override var isAltDown = false
+        private set
 
     private val mpl = mutableListOf<ListensTo.MousePress>()
     private val mrl = mutableListOf<ListensTo.MouseRelease>()
@@ -81,11 +92,23 @@ class VPanel : VHost {
 
     private val keyListener = object : KeyAdapter() {
         override fun keyPressed(e: KeyEvent) {
-            kpl.forEach { it.onKeyPress(e.keyCode) }
+            val keyCode = e.keyCode
+            when (keyCode) {
+                KeyEvent.VK_CONTROL -> isControlDown = true
+                KeyEvent.VK_SHIFT -> isShiftDown = true
+                KeyEvent.VK_ALT -> isAltDown = true
+            }
+            kpl.forEach { it.onKeyPress(keyCode) }
         }
 
         override fun keyReleased(e: KeyEvent) {
-            krl.forEach { it.onKeyRelease(e.keyCode) }
+            val keyCode = e.keyCode
+            krl.forEach { it.onKeyRelease(keyCode) }
+            when (keyCode) {
+                KeyEvent.VK_CONTROL -> isControlDown = false
+                KeyEvent.VK_SHIFT -> isShiftDown = false
+                KeyEvent.VK_ALT -> isAltDown = false
+            }
         }
     }
 

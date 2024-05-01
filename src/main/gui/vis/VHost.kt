@@ -9,7 +9,13 @@ interface VHost {
     val height: Int
     fun setSize(w: Float, h: Float)
 
-    val mouseButtonDown: BooleanArray
+    val isMouseLeftButtonDown: Boolean
+    val isMouseRightButtonDown: Boolean
+    val isMouseMiddleButtonDown: Boolean
+
+    val isControlDown: Boolean
+    val isShiftDown: Boolean
+    val isAltDown: Boolean
 
     val atMouse: Queue<Visual>
 
