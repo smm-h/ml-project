@@ -5,8 +5,10 @@ import src.main.gui.vis.MouseButton.*
 import src.main.gui.vis.VPanel
 import src.main.gui.vis.Visual
 import java.awt.*
+import java.awt.event.ActionEvent
 import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
+import javax.swing.AbstractAction
 import javax.swing.JCheckBox
 import javax.swing.JCheckBoxMenuItem
 import javax.swing.JPopupMenu
@@ -154,5 +156,12 @@ object GUIUtil {
         JCheckBoxMenuItem(text).apply {
             state = property.get()
             addActionListener { property.set(state) }
+        }
+
+    fun action(name: String, act: () -> Unit) =
+        object : AbstractAction(name) {
+            override fun actionPerformed(e: ActionEvent) {
+                act()
+            }
         }
 }

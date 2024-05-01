@@ -1,6 +1,7 @@
 package src.main.gui.vis
 
 import src.main.gui.GUIUtil
+import src.main.gui.GUIUtil.action
 import src.main.gui.GUIUtil.by
 import src.main.gui.GUIUtil.mouseButton
 import java.awt.Graphics
@@ -8,6 +9,7 @@ import java.awt.GridBagLayout
 import java.awt.event.*
 import java.util.*
 import javax.swing.JPanel
+import javax.swing.KeyStroke
 import kotlin.math.roundToInt
 
 class VPanel : VHost {
@@ -26,6 +28,16 @@ class VPanel : VHost {
         private set
     override var isAltDown = false
         private set
+
+    private val actionControlPressed = action("ctrl+") {
+        isControlDown = true
+        println(":)")
+    }
+    private val actionControlReleased = action("ctrl-") { isControlDown = false }
+    private val actionShiftPressed = action("shift+") { isShiftDown = true }
+    private val actionShiftReleased = action("shift-") { isShiftDown = false }
+    private val actionAltPressed = action("alt+") { isAltDown = true }
+    private val actionAltReleased = action("alt-") { isAltDown = false }
 
     private val mpl = mutableListOf<ListensTo.MousePress>()
     private val mrl = mutableListOf<ListensTo.MouseRelease>()
@@ -118,6 +130,7 @@ class VPanel : VHost {
             redraw()
         }
 
+    // JInternalFrame("--", true, true, true, true) { isVisible = true
     val jPanel = object : JPanel(GridBagLayout()) {
         override fun paintComponent(g0: Graphics?) {
             super.paintComponent(g0)
@@ -127,7 +140,18 @@ class VPanel : VHost {
     }.apply {
         addMouseListener(mouseListener)
         addMouseMotionListener(mouseMotionListener)
-        addKeyListener(keyListener)
+        inputMap.put(KeyStroke.getKeyStroke("pressed A"), "ctrl+")
+        inputMap.put(KeyStroke.getKeyStroke("released CONTROL"), "ctrl-")
+        inputMap.put(KeyStroke.getKeyStroke("pressed SHIFT"), "shift+")
+        inputMap.put(KeyStroke.getKeyStroke("released SHIFT"), "shift-")
+        inputMap.put(KeyStroke.getKeyStroke("pressed ALT"), "alt+")
+        inputMap.put(KeyStroke.getKeyStroke("released ALT"), "alt-")
+        actionMap.put("ctrl+", actionControlPressed)
+        actionMap.put("ctrl-", actionControlReleased)
+        actionMap.put("shift+", actionShiftPressed)
+        actionMap.put("shift-", actionShiftReleased)
+        actionMap.put("alt+", actionAltPressed)
+        actionMap.put("alt-", actionAltReleased)
     }
 
     override val width: Int get() = jPanel.width

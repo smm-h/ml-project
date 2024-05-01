@@ -11,7 +11,7 @@ interface ColumnLayerView : LayerView {
 
     override fun onMouseDrag(x: Float, y: Float) {
         if (editing && containsMouse && host.isMouseLeftButtonDown) {
-            val sgn = 1 // TODO -1
+            val sgn = if (host.isControlDown) -1 else +1
             val i = ((x - this.x) / (cellSize)).toInt()
             val j = ((y - this.y) / (cellSize + vSep)).toInt()
             if (i in 0..1 && j in 0..cellCount) {

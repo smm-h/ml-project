@@ -18,7 +18,6 @@ abstract class AbstractLayerView(final override val multilayerPerceptronView: Mu
 
     override var showCells: Boolean = true
         set(value) {
-            println(value)
             field = value
             if (mnuShowCellValues.state != value)
                 mnuShowCellValues.state = value
