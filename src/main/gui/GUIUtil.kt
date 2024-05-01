@@ -150,12 +150,16 @@ object GUIUtil {
         JCheckBox(text).apply {
             isSelected = property.get()
             addActionListener { property.set(isSelected) }
+        }.apply {
+            isSelected = property.get()
         }
 
     fun createBoundCheckBoxMenuItem(text: String, property: KMutableProperty0<Boolean>) =
         JCheckBoxMenuItem(text).apply {
             state = property.get()
             addActionListener { property.set(state) }
+        }.apply {
+            state = property.get()
         }
 
     fun action(name: String, act: () -> Unit) =
@@ -164,4 +168,8 @@ object GUIUtil {
                 act()
             }
         }
+
+    operator fun Color.component1(): Float = red / 255f
+    operator fun Color.component2(): Float = green / 255f
+    operator fun Color.component3(): Float = blue / 255f
 }

@@ -1,8 +1,12 @@
 package src.main.gui.vis
 
+import src.main.gui.GUI
 import java.util.*
 
 interface VHost {
+
+    val gui: GUI
+
     var padding: Float
 
     val width: Int

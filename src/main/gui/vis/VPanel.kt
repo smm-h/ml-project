@@ -1,5 +1,6 @@
 package src.main.gui.vis
 
+import src.main.gui.GUI
 import src.main.gui.GUIUtil
 import src.main.gui.GUIUtil.action
 import src.main.gui.GUIUtil.by
@@ -12,7 +13,7 @@ import javax.swing.JPanel
 import javax.swing.KeyStroke
 import kotlin.math.roundToInt
 
-class VPanel : VHost {
+class VPanel(override val gui: GUI) : VHost {
 
     override var padding: Float = 8f
 

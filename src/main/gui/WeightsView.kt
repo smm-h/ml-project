@@ -1,5 +1,8 @@
 package src.main.gui
 
+import src.main.gui.GUIUtil.component1
+import src.main.gui.GUIUtil.component2
+import src.main.gui.GUIUtil.component3
 import src.main.gui.GUIUtil.createStill
 import src.main.gui.GUIUtil.drawLineFloat
 import src.main.gui.GUIUtil.drawStill
@@ -43,11 +46,26 @@ class WeightsView(
 
     override fun draw(g: Graphics2D) {
         if (enabled)
-            drawStill(g, enabledImage)
+            drawStill(g, if (host.gui.darkMode) stillDarkMode else stillLightMode)
     }
 
-    private val enabledImage by lazy {
+    private val stillLightMode by lazy {
+        createStill(
+            Color(0f, 1.0f, 0f),
+            Color(1.0f, 0f, 0f),
+        )
+    }
+    private val stillDarkMode by lazy {
+        createStill(
+            Color(0f, 0.5f, 0f),
+            Color(0.5f, 0f, 0f),
+        )
+    }
+
+    private fun createStill(colorPositive: Color, colorNegative: Color) =
         createStill { g ->
+            val (pR, pG, pB) = colorPositive
+            val (nR, nG, nB) = colorNegative
             r.forEach { nextNeuron ->
                 l.forEach { currNeuron ->
                     val weight = weights.getWeight(nextNeuron, currNeuron)
@@ -55,9 +73,9 @@ class WeightsView(
                     if (alpha >= minimumVisibleAlpha) {
                         g.color =
                             if (weight > 0f)
-                                Color(0f, 1f, 0f, alpha) // green
+                                Color(pR, pG, pB, alpha) // green
                             else
-                                Color(1f, 0f, 0f, alpha) // red
+                                Color(nR, nG, nB, alpha) // red
                         g.drawLineFloat(
                             l.getCellCenterX(currNeuron),
                             l.getCellCenterY(currNeuron) + lY,
@@ -68,22 +86,4 @@ class WeightsView(
                 }
             }
         }
-    }
-
-    private val disabledImage by lazy {
-        createStill { g ->
-            val alpha = (1f * alphaFactor / divisor).coerceIn(0f, 1f)
-            g.color = GUIUtil.gray(0.5f, alpha)
-            r.forEach { nextNeuron ->
-                l.forEach { currNeuron ->
-                    g.drawLineFloat(
-                        l.getCellCenterX(currNeuron),
-                        l.getCellCenterY(currNeuron) + lY,
-                        r.getCellCenterX(nextNeuron) + l.w + gapSize,
-                        r.getCellCenterY(nextNeuron) + rY,
-                    )
-                }
-            }
-        }
-    }
 }

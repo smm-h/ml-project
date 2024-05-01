@@ -20,6 +20,8 @@ import kotlin.system.exitProcess
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class GUI {
 
+    val menu = Menu(this)
+
     var darkMode: Boolean = false
         set(value) {
             if (value) {
@@ -28,6 +30,8 @@ class GUI {
                 assert(FlatLightLaf.setup())
             }
             SwingUtilities.updateComponentTreeUI(frame)
+            if (menu.mnuEnableDarkMode.state != value)
+                menu.mnuEnableDarkMode.state = value
             field = value
         }
 
@@ -54,7 +58,7 @@ class GUI {
                         is TreeItem.FileItem -> {
                             val file = x.file
                             tabs.addTab(file.name, JPanel(GridBagLayout()).apply {
-                                add(VPanel().apply {
+                                add(VPanel(this@GUI).apply {
                                     val v = MultilayerPerceptronView(this, file.absolutePath, 0 to (28 by 28)).apply {
                                         input = MNIST.training[(Math.random() * 1000).toInt()].data
                                     }
@@ -85,7 +89,7 @@ class GUI {
     val frame = JFrame("Neurarium").apply {
         isLocationByPlatform = true
         defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-        jMenuBar = Menu(this@GUI)
+        jMenuBar = menu
         contentPane = panel
     }
 

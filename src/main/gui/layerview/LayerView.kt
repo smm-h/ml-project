@@ -65,6 +65,12 @@ interface LayerView :
 
     fun drawCell(g: Graphics2D, i: Int, x: Float, y: Float)
 
+    fun getValueColor(value: Float): Color =
+        if (host.gui.darkMode)
+            GUIUtil.gray((value).coerceIn(0f, 1f) / 2 + 0.2f)
+        else
+            GUIUtil.gray(1 - (value).coerceIn(0f, 1f))
+
     override fun onMouseRelease(x: Float, y: Float, b: MouseButton) {
         when (b) {
             MouseButton.LEFT -> {
