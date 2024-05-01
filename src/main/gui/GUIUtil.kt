@@ -2,10 +2,14 @@ package src.main.gui
 
 import src.main.gui.vis.MouseButton
 import src.main.gui.vis.MouseButton.*
+import src.main.gui.vis.VPanel
+import src.main.gui.vis.Visual
 import java.awt.*
 import java.awt.event.MouseEvent
+import java.awt.image.BufferedImage
 import javax.swing.JCheckBox
 import javax.swing.JCheckBoxMenuItem
+import javax.swing.JPopupMenu
 import kotlin.math.roundToInt
 import kotlin.reflect.KMutableProperty0
 
@@ -94,6 +98,33 @@ object GUIUtil {
         )
     }
 
+    fun Graphics2D.drawOvalFloat(x: Float, y: Float, w: Float, h: Float) {
+        drawOval(
+            x.roundToInt(),
+            y.roundToInt(),
+            w.roundToInt(),
+            h.roundToInt(),
+        )
+    }
+
+    fun Graphics2D.fillOvalFloat(x: Float, y: Float, w: Float, h: Float) {
+        fillOval(
+            x.roundToInt(),
+            y.roundToInt(),
+            w.roundToInt(),
+            h.roundToInt(),
+        )
+    }
+
+    fun Graphics2D.drawLineFloat(x1: Float, y1: Float, x2: Float, y2: Float) {
+        drawLine(
+            x1.roundToInt(),
+            y1.roundToInt(),
+            x2.roundToInt(),
+            y2.roundToInt(),
+        )
+    }
+
     val MouseEvent.mouseButton: MouseButton?
         get() = when (button) {
             MouseEvent.BUTTON1 -> LEFT
@@ -101,6 +132,17 @@ object GUIUtil {
             MouseEvent.BUTTON3 -> RIGHT
             else -> null
         }
+
+    fun Visual.createStill(draw: (Graphics2D) -> Unit): BufferedImage =
+        BufferedImage(w.roundToInt(), h.roundToInt(), BufferedImage.TYPE_INT_ARGB)
+            .also { draw(getSmoothGraphics(it.graphics)) }
+
+    fun Visual.drawStill(g: Graphics2D, still: BufferedImage) {
+        g.drawImage(still, x.roundToInt(), y.roundToInt(), null)
+    }
+
+    fun Visual.showPopupMenu(m: JPopupMenu) =
+        m.show((host as VPanel).jPanel, x.roundToInt(), y.roundToInt())
 
     fun createBoundCheckBox(text: String, property: KMutableProperty0<Boolean>) =
         JCheckBox(text).apply {

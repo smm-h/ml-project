@@ -1,15 +1,16 @@
 package src.main.gui
 
+import src.main.gui.GUIUtil.createStill
+import src.main.gui.GUIUtil.drawLineFloat
+import src.main.gui.GUIUtil.drawStill
 import src.main.gui.layerview.LayerView
 import src.main.gui.vis.VHost
 import src.main.gui.vis.Visual
 import src.main.mlp.Weights
 import java.awt.Color
 import java.awt.Graphics2D
-import java.awt.image.BufferedImage
 import kotlin.math.abs
 import kotlin.math.pow
-import kotlin.math.roundToInt
 
 class WeightsView(
     override val host: VHost,
@@ -42,16 +43,11 @@ class WeightsView(
 
     override fun draw(g: Graphics2D) {
         if (enabled)
-            g.drawImage(enabledImage, x.roundToInt(), y.roundToInt(), null)
+            drawStill(g, enabledImage)
     }
 
     private val enabledImage by lazy {
-        BufferedImage(
-            w.roundToInt(),
-            h.roundToInt(),
-            BufferedImage.TYPE_INT_ARGB,
-        ).also {
-            val g = GUIUtil.getSmoothGraphics(it.graphics)
+        createStill { g ->
             r.forEach { nextNeuron ->
                 l.forEach { currNeuron ->
                     val weight = weights.getWeight(nextNeuron, currNeuron)
@@ -62,11 +58,11 @@ class WeightsView(
                                 Color(0f, 1f, 0f, alpha) // green
                             else
                                 Color(1f, 0f, 0f, alpha) // red
-                        g.drawLine(
-                            (l.getCellCenterX(currNeuron)).roundToInt(),
-                            (l.getCellCenterY(currNeuron) + lY).roundToInt(),
-                            (r.getCellCenterX(nextNeuron) + l.w + gapSize).roundToInt(),
-                            (r.getCellCenterY(nextNeuron) + rY).roundToInt(),
+                        g.drawLineFloat(
+                            l.getCellCenterX(currNeuron),
+                            l.getCellCenterY(currNeuron) + lY,
+                            r.getCellCenterX(nextNeuron) + l.w + gapSize,
+                            r.getCellCenterY(nextNeuron) + rY,
                         )
                     }
                 }
@@ -75,21 +71,16 @@ class WeightsView(
     }
 
     private val disabledImage by lazy {
-        BufferedImage(
-            w.roundToInt(),
-            h.roundToInt(),
-            BufferedImage.TYPE_INT_ARGB,
-        ).also {
-            val g = GUIUtil.getSmoothGraphics(it.graphics)
+        createStill { g ->
             val alpha = (1f * alphaFactor / divisor).coerceIn(0f, 1f)
             g.color = GUIUtil.gray(0.5f, alpha)
             r.forEach { nextNeuron ->
                 l.forEach { currNeuron ->
-                    g.drawLine(
-                        (l.getCellCenterX(currNeuron)).roundToInt(),
-                        (l.getCellCenterY(currNeuron) + lY).roundToInt(),
-                        (r.getCellCenterX(nextNeuron) + l.w + gapSize).roundToInt(),
-                        (r.getCellCenterY(nextNeuron) + rY).roundToInt(),
+                    g.drawLineFloat(
+                        l.getCellCenterX(currNeuron),
+                        l.getCellCenterY(currNeuron) + lY,
+                        r.getCellCenterX(nextNeuron) + l.w + gapSize,
+                        r.getCellCenterY(nextNeuron) + rY,
                     )
                 }
             }

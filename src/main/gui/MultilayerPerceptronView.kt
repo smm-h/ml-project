@@ -2,15 +2,18 @@ package src.main.gui
 
 import src.main.gui.GUIUtil.createBoundCheckBoxMenuItem
 import src.main.gui.GUIUtil.drawOutline
+import src.main.gui.GUIUtil.showPopupMenu
 import src.main.gui.layerview.*
-import src.main.gui.vis.*
+import src.main.gui.vis.MouseButton
+import src.main.gui.vis.VHost
+import src.main.gui.vis.VLayer
+import src.main.gui.vis.Visual
 import src.main.mlp.MultilayerPerceptron
 import java.awt.Dimension
 import java.awt.Graphics2D
 import javax.swing.JPopupMenu
 import kotlin.math.max
 import kotlin.math.round
-import kotlin.math.roundToInt
 
 class MultilayerPerceptronView(
     override val host: VHost,
@@ -160,15 +163,15 @@ class MultilayerPerceptronView(
     private val mnuShowWeights =
         createBoundCheckBoxMenuItem("Show weights", ::showWeights)
 
-    private val popUp = JPopupMenu().apply {
+    private val popUpMenu = JPopupMenu().apply {
         add(mnuShowBorder)
         add(mnuShowHiddenLayers)
         add(mnuShowWeights)
     }
 
     override fun onMouseRelease(x: Float, y: Float, b: MouseButton) {
-        if (b == MouseButton.RIGHT && contains(x, y, 0f)) {
-            popUp.show((host as VPanel).jPanel, x.roundToInt(), y.roundToInt())
+        if (b == MouseButton.RIGHT) {
+            showPopupMenu(popUpMenu)
         }
     }
 

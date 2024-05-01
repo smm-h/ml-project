@@ -3,13 +3,12 @@ package src.main.gui.layerview
 import src.main.gui.GUIUtil
 import src.main.gui.GUIUtil.drawOutline
 import src.main.gui.GUIUtil.fillOutline
+import src.main.gui.GUIUtil.showPopupMenu
 import src.main.gui.vis.MouseButton
-import src.main.gui.vis.VPanel
 import src.main.gui.vis.Visual
 import java.awt.Color
 import java.awt.Graphics2D
 import javax.swing.JPopupMenu
-import kotlin.math.roundToInt
 
 /**
  * A one or two-dimensional view of a layer and its cells.
@@ -69,7 +68,7 @@ interface LayerView :
             }
 
             MouseButton.RIGHT -> {
-                popupMenu.show((host as VPanel).jPanel, x.roundToInt(), y.roundToInt())
+                showPopupMenu(popupMenu)
             }
 
             MouseButton.MIDDLE -> {}
