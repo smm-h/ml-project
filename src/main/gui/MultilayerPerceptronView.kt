@@ -1,11 +1,9 @@
 package src.main.gui
 
-import src.main.gui.layerview.BigColumnLayerView
-import src.main.gui.layerview.BigGridLayerView
-import src.main.gui.layerview.SmallColumnLayerView
-import src.main.gui.layerview.SmallGridLayerView
-import src.main.gui.vis.AbstractRectangularVisual
+import src.main.gui.layerview.*
 import src.main.gui.vis.VHost
+import src.main.gui.vis.VLayer
+import src.main.gui.vis.Visual
 import src.main.mlp.MultilayerPerceptron
 import src.main.mnist.MNIST
 import java.awt.Dimension
@@ -21,10 +19,12 @@ class MultilayerPerceptronView(
     override val host: VHost,
     private val filename: String,
     vararg gridLayers: Pair<Int, Dimension>,
-) : AbstractRectangularVisual() {
+) : Visual {
 
-    override var x: Float = 0f
-    override var y: Float = 0f
+    override val x: Float = 0f
+    override val y: Float = 0f
+
+    override var containsMouse: Boolean = false
 
     private val structure = MultilayerPerceptron.readStructure(filename)
     private val model by lazy { MultilayerPerceptron.readModel(filename) }
@@ -34,13 +34,13 @@ class MultilayerPerceptronView(
     private var showHiddenLayers = true
         set(value) {
             field = value
-            layerViews.forEachIndexed { i, it -> it.showCells = value || i == 0 || i == n - 1 }
+            layerViews.visuals.forEachIndexed { i, it -> it.showCells = value || i == 0 || i == n - 1 }
             host.redraw()
         }
     private var showWeights = true
         set(value) {
             field = value
-            weightsViews.forEach { it.enabled = value }
+            weightsViews.visuals.forEach { it.enabled = value }
             host.redraw()
         }
     private var showBorder = true
@@ -50,65 +50,100 @@ class MultilayerPerceptronView(
         }
 
     var input: FloatArray
-        get() = layerViews.first().data
+        get() = layerViews.visuals.first().data
         set(value) {
-            layerViews.first().data = value
+            layerViews.visuals.first().data = value
             forwardPropagate()
         }
 
     val output: FloatArray
-        get() = layerViews.last().data
+        get() = layerViews.visuals.last().data
 
     private fun forwardPropagate() {
         model.forwardPropagateAlsoRecord(input).forEachIndexed { index, data ->
-            layerViews[index + 1].data = data
+            layerViews.visuals[index + 1].data = data
         }
         host.redraw()
     }
 
     private val gridLayersMap = gridLayers.toMap()
-    private val layerViews = List(n) { i ->
-        val s = when (i) {
-            0 -> structure.inputSize
-            n - 1 -> structure.outputSize
-            else -> structure.hiddenLayerSizes[i - 1]
-        }
-        val d = gridLayersMap[i]
-        if (d == null) {
-            val mh = 200f
-            if (s > 16) {
-                val cellSize = round(mh / s).coerceAtLeast(1f)
-                BigColumnLayerView(host, s, cellSize)
-            } else {
-                val vSep = round(mh / 4 / s).coerceAtLeast(1f)
-                val cellSize = vSep * 3
-                SmallColumnLayerView(host, s, cellSize, vSep)
+    private val layerViews = VLayer<LayerView>(host).apply {
+        for (i in 0 until n) {
+            val s = when (i) {
+                0 -> structure.inputSize
+                n - 1 -> structure.outputSize
+                else -> structure.hiddenLayerSizes[i - 1]
             }
-        } else {
-            val w = d.width
-            val h = d.height
-            if (max(w, h) > 16) {
-                BigGridLayerView(host, w, h)
+            val d = gridLayersMap[i]
+            val v = if (d == null) {
+                val mh = 200f
+                if (s > 16) {
+                    val cellSize = round(mh / s).coerceAtLeast(1f)
+                    BigColumnLayerView(host, s, cellSize)
+                } else {
+                    val vSep = round(mh / 4 / s).coerceAtLeast(1f)
+                    val cellSize = vSep * 3
+                    SmallColumnLayerView(host, s, cellSize, vSep)
+                }
             } else {
-                SmallGridLayerView(host, w, h)
+                val w = d.width
+                val h = d.height
+                if (max(w, h) > 16) {
+                    BigGridLayerView(host, w, h)
+                } else {
+                    SmallGridLayerView(host, w, h)
+                }
             }
+            host.register(v)
+            visuals.add(v)
         }
     }
 
-    private val weightsViews = List(n - 1) { i ->
-        val h = h
-        WeightsView(
-            weights = model.getWeights(i),
-            l = layerViews[i],
-            r = layerViews[i + 1],
-            lY = (h - layerViews[i].h) / 2,
-            rY = (h - layerViews[i + 1].h) / 2,
-            gapSize = 112f,
-            vSize = h,
-            alphaPower = 2,
-            alphaFactor = 1f,
-            minimumVisibleAlpha = 0.01f,
-        )
+    private val weightsViews = VLayer<WeightsView>(host).apply {
+        for (i in 0 until n) {
+            val h = h
+            val v = WeightsView(
+                host = host,
+                weights = model.getWeights(i),
+                l = layerViews.visuals[i],
+                r = layerViews.visuals[i + 1],
+                lY = (h - layerViews.visuals[i].h) / 2,
+                rY = (h - layerViews.visuals[i + 1].h) / 2,
+                gapSize = 112f,
+                h = h,
+                alphaPower = 2,
+                alphaFactor = 1f,
+                minimumVisibleAlpha = 0.01f,
+            )
+            visuals.add(v)
+            host.register(v)
+        }
+    }
+
+    fun reposition() {
+        var x: Float
+        x = host.padding
+        weightsViews.visuals.forEach {
+            it.x = x
+            it.y = (host.height - h) / 2
+            x += it.l.w + it.gapSize
+        }
+
+        x = host.padding
+        layerViews.visuals.forEachIndexed { i, it ->
+            val y = (host.height - it.h) / 2
+            it.x = x
+            it.y = y
+            x += it.w
+            if (i != n - 1)
+                x += weightsViews.visuals[i].gapSize
+        }
+    }
+
+    init {
+        host.addLayer(weightsViews)
+        host.addLayer(layerViews)
+        reposition()
     }
 
     private val popUp = JPopupMenu().apply {
@@ -150,10 +185,10 @@ class MultilayerPerceptronView(
     override val w: Float
         get() {
             var w = 0f
-            layerViews.forEachIndexed { index, layer ->
+            layerViews.visuals.forEachIndexed { index, layer ->
                 w += layer.w
                 if (index != n - 1)
-                    w += weightsViews[index].gapSize
+                    w += weightsViews.visuals[index].gapSize
             }
             return w + host.padding * 2
         }
@@ -161,13 +196,15 @@ class MultilayerPerceptronView(
     override val h: Float
         get() {
             var h = 0f
-            layerViews.forEach { layer ->
+            layerViews.visuals.forEach { layer ->
                 h = max(layer.h, h)
             }
             return h + host.padding * 2
         }
 
     override fun draw(g: Graphics2D) {
+        layerViews.draw(g)
+        weightsViews.draw(g)
     }
 
     private fun updateSize() {

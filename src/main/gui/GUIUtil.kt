@@ -1,6 +1,9 @@
 package src.main.gui
 
+import src.main.gui.vis.MouseButton
+import src.main.gui.vis.MouseButton.*
 import java.awt.*
+import java.awt.event.MouseEvent
 import kotlin.math.roundToInt
 
 object GUIUtil {
@@ -87,4 +90,12 @@ object GUIUtil {
             h.roundToInt(),
         )
     }
+
+    val MouseEvent.mouseButton: MouseButton?
+        get() = when (button) {
+            MouseEvent.BUTTON1 -> LEFT
+            MouseEvent.BUTTON2 -> MIDDLE
+            MouseEvent.BUTTON3 -> RIGHT
+            else -> null
+        }
 }

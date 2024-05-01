@@ -1,6 +1,8 @@
 package src.main.gui
 
 import src.main.gui.layerview.LayerView
+import src.main.gui.vis.VHost
+import src.main.gui.vis.Visual
 import src.main.mlp.Weights
 import java.awt.Color
 import java.awt.Graphics2D
@@ -10,20 +12,23 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 class WeightsView(
+    override val host: VHost,
     val weights: Weights,
     val l: LayerView,
     val r: LayerView,
     val lY: Float,
     val rY: Float,
     val gapSize: Float,
-    val vSize: Float,
+    override val h: Float,
     val alphaPower: Int,
     val alphaFactor: Float,
     val minimumVisibleAlpha: Float,
-) {
+) : Visual.Movable {
 
-    var x: Float = 0f
-    var y: Float = 0f
+    override var x: Float = 0f
+    override var y: Float = 0f
+
+    override var containsMouse: Boolean = false
 
     var enabled: Boolean = true
 
@@ -31,21 +36,21 @@ class WeightsView(
 //    override val radius: Float
 //        get() = gapSize
 
-    val hSize get() = l.w + gapSize + r.w
-//        val vSize get() = max(l.vSize, r.vSize)
+    override val w get() = l.w + gapSize + r.w
+//       override val h get() = max(l.vSize, r.vSize)
 
     private val divisor: Float =
         (l.cellCount + r.cellCount) / 32f
 
-    fun draw(g: Graphics2D) {
+    override fun draw(g: Graphics2D) {
         if (enabled)
             g.drawImage(enabledImage, x.roundToInt(), y.roundToInt(), null)
     }
 
     private val enabledImage by lazy {
         BufferedImage(
-            hSize.roundToInt(),
-            vSize.roundToInt(),
+            w.roundToInt(),
+            h.roundToInt(),
             BufferedImage.TYPE_INT_ARGB,
         ).also {
             val g = GUIUtil.getSmoothGraphics(it.graphics)
@@ -73,8 +78,8 @@ class WeightsView(
 
     private val disabledImage by lazy {
         BufferedImage(
-            hSize.roundToInt(),
-            vSize.roundToInt(),
+            w.roundToInt(),
+            h.roundToInt(),
             BufferedImage.TYPE_INT_ARGB,
         ).also {
             val g = GUIUtil.getSmoothGraphics(it.graphics)

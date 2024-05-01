@@ -3,7 +3,8 @@ package src.main.gui.layerview
 import src.main.gui.GUIUtil
 import src.main.gui.GUIUtil.drawOutline
 import src.main.gui.GUIUtil.fillOutline
-import src.main.gui.vis.Rectangular
+import src.main.gui.vis.MouseButton
+import src.main.gui.vis.Visual
 import java.awt.Color
 import java.awt.Graphics2D
 import javax.swing.JPopupMenu
@@ -13,7 +14,13 @@ import kotlin.math.roundToInt
  * A one or two-dimensional view of a layer and its cells.
  */
 @Suppress("MemberVisibilityCanBePrivate", "unused")
-interface LayerView : Iterable<Int>, Rectangular {
+interface LayerView :
+    Visual.Movable,
+    Visual.Hoverable,
+    Visual.ListensToMouseDrag,
+    Visual.ListensToMouseRelease,
+    Iterable<Int> {
+
     val cellCount: Int
     var cellSize: Float
 
@@ -59,4 +66,10 @@ interface LayerView : Iterable<Int>, Rectangular {
     }
 
     fun drawCell(g: Graphics2D, i: Int, x: Float, y: Float)
+
+    override fun onMouseRelease(x: Float, y: Float, b: MouseButton) {
+        if (b == MouseButton.LEFT) {
+            forwardPropagateStartingFrom()
+        }
+    }
 }
