@@ -15,13 +15,13 @@ abstract class AbstractLayerView : LayerView {
         set(value) {
             println(value)
             field = value
-            if (mnuShowCells.state != value)
-                mnuShowCells.state = value
+            if (mnuShowCellValues.state != value)
+                mnuShowCellValues.state = value
             host.redraw()
         }
 
-    private val mnuShowCells =
-        createBoundCheckBoxMenuItem("Show cells", ::showCells)
+    private val mnuShowCellValues =
+        createBoundCheckBoxMenuItem("Show cell values", ::showCells)
 
     override var editing: Boolean = false
         set(value) {
@@ -39,13 +39,19 @@ abstract class AbstractLayerView : LayerView {
     private val mnuClear =
         JMenuItem("Clear").apply {
             isEnabled = false
-            addActionListener { data = FloatArray(cellCount) }
+            addActionListener {
+                data = FloatArray(cellCount)
+                host.redraw()
+            }
         }
 
     private val mnuRandomize =
         JMenuItem("Randomize").apply {
             isEnabled = false
-            addActionListener { data = FloatArray(cellCount) { Math.random().toFloat() } }
+            addActionListener {
+                data = FloatArray(cellCount) { Math.random().toFloat() }
+                host.redraw()
+            }
         }
 
     private val mnuProperties =
@@ -55,7 +61,7 @@ abstract class AbstractLayerView : LayerView {
         }
 
     override val popupMenu = JPopupMenu().apply {
-        add(mnuShowCells)
+        add(mnuShowCellValues)
         add(mnuEditing)
         add(JSeparator(SwingConstants.HORIZONTAL))
         add(mnuClear)
