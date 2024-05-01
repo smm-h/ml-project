@@ -68,7 +68,7 @@ interface LayerView :
             }
 
             MouseButton.RIGHT -> {
-                showPopupMenu(popupMenu)
+                showPopupMenu(popupMenu, x, y)
             }
 
             MouseButton.MIDDLE -> {}

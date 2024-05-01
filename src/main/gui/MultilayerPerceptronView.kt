@@ -171,7 +171,7 @@ class MultilayerPerceptronView(
 
     override fun onMouseRelease(x: Float, y: Float, b: MouseButton) {
         if (b == MouseButton.RIGHT) {
-            showPopupMenu(popUpMenu)
+            showPopupMenu(popUpMenu, x, y)
         }
     }
 

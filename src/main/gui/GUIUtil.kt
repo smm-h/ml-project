@@ -141,7 +141,7 @@ object GUIUtil {
         g.drawImage(still, x.roundToInt(), y.roundToInt(), null)
     }
 
-    fun Visual.showPopupMenu(m: JPopupMenu) =
+    fun Visual.showPopupMenu(m: JPopupMenu, x: Float, y: Float) =
         m.show((host as VPanel).jPanel, x.roundToInt(), y.roundToInt())
 
     fun createBoundCheckBox(text: String, property: KMutableProperty0<Boolean>) =
