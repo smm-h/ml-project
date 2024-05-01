@@ -1,12 +1,12 @@
 package src.main.gui
 
+import src.main.gui.GUIUtil.createBoundCheckBoxMenuItem
 import src.main.gui.GUIUtil.drawOutline
 import src.main.gui.layerview.*
 import src.main.gui.vis.*
 import src.main.mlp.MultilayerPerceptron
 import java.awt.Dimension
 import java.awt.Graphics2D
-import javax.swing.JCheckBoxMenuItem
 import javax.swing.JPopupMenu
 import kotlin.math.max
 import kotlin.math.round
@@ -152,22 +152,13 @@ class MultilayerPerceptronView(
     }
 
     private val mnuShowBorder =
-        JCheckBoxMenuItem("Show border").apply {
-            state = showBorder
-            addActionListener { showBorder = state }
-        }
+        createBoundCheckBoxMenuItem("Show border", ::showBorder)
 
     private val mnuShowHiddenLayers =
-        JCheckBoxMenuItem("Show hidden layers").apply {
-            state = showHiddenLayers
-            addActionListener { showHiddenLayers = state }
-        }
+        createBoundCheckBoxMenuItem("Show hidden layers", ::showHiddenLayers)
 
     private val mnuShowWeights =
-        JCheckBoxMenuItem("Show weights").apply {
-            state = showWeights
-            addActionListener { showWeights = state }
-        }
+        createBoundCheckBoxMenuItem("Show weights", ::showWeights)
 
     private val popUp = JPopupMenu().apply {
         add(mnuShowBorder)

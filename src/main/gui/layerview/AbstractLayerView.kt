@@ -1,6 +1,10 @@
 package src.main.gui.layerview
 
-import javax.swing.*
+import src.main.gui.GUIUtil.createBoundCheckBoxMenuItem
+import javax.swing.JMenuItem
+import javax.swing.JPopupMenu
+import javax.swing.JSeparator
+import javax.swing.SwingConstants
 
 abstract class AbstractLayerView : LayerView {
     override var containsMouse: Boolean = false
@@ -17,10 +21,7 @@ abstract class AbstractLayerView : LayerView {
         }
 
     private val mnuShowCells =
-        JCheckBoxMenuItem("Show cells").apply {
-            state = showCells
-            addActionListener { showCells = state }
-        }
+        createBoundCheckBoxMenuItem("Show cells", ::showCells)
 
     override var editing: Boolean = false
         set(value) {
@@ -33,10 +34,7 @@ abstract class AbstractLayerView : LayerView {
         }
 
     private val mnuEditing =
-        JCheckBoxMenuItem("Enable editing").apply {
-            state = editing
-            addActionListener { editing = state }
-        }
+        createBoundCheckBoxMenuItem("Enable editing", ::editing)
 
     private val mnuClear =
         JMenuItem("Clear").apply {

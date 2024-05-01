@@ -4,7 +4,10 @@ import src.main.gui.vis.MouseButton
 import src.main.gui.vis.MouseButton.*
 import java.awt.*
 import java.awt.event.MouseEvent
+import javax.swing.JCheckBox
+import javax.swing.JCheckBoxMenuItem
 import kotlin.math.roundToInt
+import kotlin.reflect.KMutableProperty0
 
 object GUIUtil {
 
@@ -97,5 +100,17 @@ object GUIUtil {
             MouseEvent.BUTTON2 -> MIDDLE
             MouseEvent.BUTTON3 -> RIGHT
             else -> null
+        }
+
+    fun createBoundCheckBox(text: String, property: KMutableProperty0<Boolean>) =
+        JCheckBox(text).apply {
+            isSelected = property.get()
+            addActionListener { property.set(isSelected) }
+        }
+
+    fun createBoundCheckBoxMenuItem(text: String, property: KMutableProperty0<Boolean>) =
+        JCheckBoxMenuItem(text).apply {
+            state = property.get()
+            addActionListener { property.set(state) }
         }
 }
