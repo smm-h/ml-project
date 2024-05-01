@@ -6,6 +6,7 @@ import src.main.gui.GUIUtil.by
 import src.main.gui.vis.VLayer
 import src.main.gui.vis.VPanel
 import src.main.mnist.MNIST
+import java.awt.GridBagLayout
 import java.awt.GridLayout
 import java.io.File
 import javax.swing.*
@@ -53,14 +54,16 @@ class GUI {
                     when (x) {
                         is TreeItem.FileItem -> {
                             val file = x.file
-                            tabs.addTab(file.name, VPanel().apply {
-                                val l = VLayer<MultilayerPerceptronView>(this)
-                                val v = MultilayerPerceptronView(this, file.absolutePath, 0 to (28 by 28)).apply {
-                                    input = MNIST.training[(Math.random() * 1000).toInt()].data
-                                }
-                                l.visuals.add(v)
-                                addLayer(l)
-                            }.jPanel)
+                            tabs.addTab(file.name, JPanel(GridBagLayout()).apply {
+                                add(VPanel().apply {
+                                    val l = VLayer<MultilayerPerceptronView>(this)
+                                    val v = MultilayerPerceptronView(this, file.absolutePath, 0 to (28 by 28)).apply {
+                                        input = MNIST.training[(Math.random() * 1000).toInt()].data
+                                    }
+                                    l.visuals.add(v)
+                                    addLayer(l)
+                                }.jPanel)
+                            })
                         }
                     }
                 }

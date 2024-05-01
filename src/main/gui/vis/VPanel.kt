@@ -2,9 +2,7 @@ package src.main.gui.vis
 
 import src.main.gui.GUIUtil
 import src.main.gui.GUIUtil.by
-import src.main.gui.GUIUtil.drawOutline
 import src.main.gui.GUIUtil.mouseButton
-import java.awt.Color
 import java.awt.Graphics
 import java.awt.GridBagLayout
 import java.awt.event.MouseAdapter
@@ -40,6 +38,14 @@ class VPanel : VHost {
             val b = e.mouseButton
             if (b != null) {
                 mouseButtonDown[b.ordinal] = true
+                val v = atMouse.elementAtOrNull(0)
+                if (v != null) {
+                    mpl.forEach {
+                        if (it == v) {
+                            it.onMousePress(e.x.toFloat(), e.y.toFloat(), b)
+                        }
+                    }
+                }
             }
         }
 
@@ -48,6 +54,14 @@ class VPanel : VHost {
             if (b != null) {
                 if (mouseButtonDown[b.ordinal]) {
                     mouseButtonDown[b.ordinal] = false
+                    val v = atMouse.elementAtOrNull(0)
+                    if (v != null) {
+                        mrl.forEach {
+                            if (it == v) {
+                                it.onMouseRelease(e.x.toFloat(), e.y.toFloat(), b)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -55,11 +69,11 @@ class VPanel : VHost {
 
     private val mouseMotionListener = object : MouseMotionListener {
         override fun mouseMoved(e: MouseEvent) {
-            mml.forEach { it.onMouseMove(e.x - it.x, e.y - it.y) }
+            mml.forEach { it.onMouseMove(e.x.toFloat(), e.y.toFloat()) }
         }
 
         override fun mouseDragged(e: MouseEvent) {
-            mdl.forEach { it.onMouseDrag(e.x - it.x, e.y - it.y) }
+            mdl.forEach { it.onMouseDrag(e.x.toFloat(), e.y.toFloat()) }
         }
     }
 
@@ -76,8 +90,6 @@ class VPanel : VHost {
             for (layer in layers) {
                 layer.draw(g)
             }
-            g.color = Color.BLUE
-            g.drawOutline(0f, 0f, width.toFloat(), height.toFloat(), -padding / 2)
         }
     }.apply {
         addMouseListener(mouseListener)

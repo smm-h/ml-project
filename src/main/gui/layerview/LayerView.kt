@@ -4,6 +4,7 @@ import src.main.gui.GUIUtil
 import src.main.gui.GUIUtil.drawOutline
 import src.main.gui.GUIUtil.fillOutline
 import src.main.gui.vis.MouseButton
+import src.main.gui.vis.VPanel
 import src.main.gui.vis.Visual
 import java.awt.Color
 import java.awt.Graphics2D
@@ -47,17 +48,9 @@ interface LayerView :
             g.fillOutline(x, y, w, h, 4f)
         }
         if (showCells) {
-            forEach { i ->
-                drawCell(g, i, x + getCellX(i), y + getCellY(i))
-            }
+            forEach { i -> drawCell(g, i, x + getCellX(i), y + getCellY(i)) }
         } else {
-            g.color = Color.GRAY
-            g.fillRect(
-                x.roundToInt(),
-                y.roundToInt(),
-                w.roundToInt(),
-                h.roundToInt(),
-            )
+            drawDisabled(g)
         }
         if (containsMouse) {
             g.color = Color.GRAY
@@ -65,11 +58,21 @@ interface LayerView :
         }
     }
 
+    fun drawDisabled(g: Graphics2D)
+
     fun drawCell(g: Graphics2D, i: Int, x: Float, y: Float)
 
     override fun onMouseRelease(x: Float, y: Float, b: MouseButton) {
-        if (b == MouseButton.LEFT) {
+        when (b) {
+            MouseButton.LEFT -> {
 //            forwardPropagateStartingFrom()
+            }
+
+            MouseButton.RIGHT -> {
+                popupMenu.show((host as VPanel).jPanel, x.roundToInt(), y.roundToInt())
+            }
+
+            MouseButton.MIDDLE -> {}
         }
     }
 }

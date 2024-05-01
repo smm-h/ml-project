@@ -3,7 +3,7 @@ package src.main.gui.layerview
 import javax.swing.*
 
 abstract class AbstractLayerView : LayerView {
-    override var containsMouse: Boolean = true
+    override var containsMouse: Boolean = false
     override var x: Float = 0f
     override var y: Float = 0f
 
@@ -38,6 +38,6 @@ abstract class AbstractLayerView : LayerView {
         add(showCellsCheckBoxMenuItem)
         add(editingJCheckBoxMenuItem)
         add(JSeparator(SwingConstants.HORIZONTAL))
-        add(JMenuItem("Change type"))
+        add(JMenuItem("Properties"))
     }
 }

@@ -28,8 +28,6 @@ interface Visual {
     fun contains(x: Float, y: Float, margin: Float): Boolean =
         x >= this.x - margin && y >= this.y - margin && x < this.x + w + margin && y < this.y + h + margin
 
-    var containsMouse: Boolean
-
     fun draw(g: Graphics2D)
 
     interface Circular : Visual {
@@ -54,6 +52,8 @@ interface Visual {
     }
 
     interface Hoverable : ListensToMouseMove {
+        var containsMouse: Boolean
+
         override fun onMouseMove(x: Float, y: Float) {
             val s = contains(x, y, 2f)
             if (containsMouse != s) {
@@ -68,11 +68,11 @@ interface Visual {
         }
     }
 
-    interface ListensToMousePress : Visual {
+    interface ListensToMousePress : Hoverable {
         fun onMousePress(x: Float, y: Float, b: MouseButton)
     }
 
-    interface ListensToMouseRelease : Visual {
+    interface ListensToMouseRelease : Hoverable {
         fun onMouseRelease(x: Float, y: Float, b: MouseButton)
     }
 }

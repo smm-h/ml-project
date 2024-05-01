@@ -1,30 +1,27 @@
 package src.main.gui
 
+import src.main.gui.GUIUtil.drawOutline
 import src.main.gui.layerview.*
-import src.main.gui.vis.VHost
-import src.main.gui.vis.VLayer
-import src.main.gui.vis.Visual
+import src.main.gui.vis.*
 import src.main.mlp.MultilayerPerceptron
-import src.main.mnist.MNIST
 import java.awt.Dimension
 import java.awt.Graphics2D
 import javax.swing.JCheckBoxMenuItem
-import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
-import javax.swing.JSeparator
 import kotlin.math.max
 import kotlin.math.round
+import kotlin.math.roundToInt
 
 class MultilayerPerceptronView(
     override val host: VHost,
     private val filename: String,
     vararg gridLayers: Pair<Int, Dimension>,
-) : Visual {
+) : Visual.ListensToMouseRelease {
+
+    override var containsMouse: Boolean = false
 
     override val x: Float = 0f
     override val y: Float = 0f
-
-    override var containsMouse: Boolean = false
 
     private val structure = MultilayerPerceptron.readStructure(filename)
     private val model by lazy { MultilayerPerceptron.readModel(filename) }
@@ -121,50 +118,40 @@ class MultilayerPerceptronView(
     }
 
     private fun reposition() {
-        var x: Float
-        x = host.padding
+        var dx: Float
+        var dy: Float
+
+        dx = x + host.padding
+        dy = y
+
         weightsViews.visuals.forEach {
-            it.x = x
-            it.y = (host.height - h) / 2
-            x += it.l.w + it.gapSize
+            it.x = dx
+            it.y = dy
+            dx += it.l.w + it.gapSize
         }
 
-        x = host.padding
+        dx = x + host.padding
+
         layerViews.visuals.forEachIndexed { i, it ->
-            val y = (host.height - it.h) / 2
-            it.x = x
-            it.y = y
-            x += it.w
+            dy = y + (h - it.h) / 2
+            it.x = dx
+            it.y = dy
+            dx += it.w
             if (i != n - 1)
-                x += weightsViews.visuals[i].gapSize
+                dx += weightsViews.visuals[i].gapSize
         }
     }
 
     init {
         host.addLayer(weightsViews)
         host.addLayer(layerViews)
+        host.register(this)
         reposition()
         host.setSize(w, h)
         input = FloatArray(structure.inputSize)
     }
 
     private val popUp = JPopupMenu().apply {
-        add(JMenuItem("Clear input").apply {
-            addActionListener {
-                input = FloatArray(structure.inputSize)
-            }
-        })
-        add(JMenuItem("Choose random datapoint as input").apply {
-            addActionListener {
-                input = MNIST.training[(Math.random() * 1000).toInt()].data
-            }
-        })
-        add(JMenuItem("Randomize input cells").apply {
-            addActionListener {
-                input = FloatArray(structure.inputSize) { Math.random().toFloat() }
-            }
-        })
-        add(JSeparator())
         add(JCheckBoxMenuItem("Show border").apply {
             state = showBorder
             addActionListener { showBorder = state }
@@ -177,6 +164,12 @@ class MultilayerPerceptronView(
             state = showWeights
             addActionListener { showWeights = state }
         })
+    }
+
+    override fun onMouseRelease(x: Float, y: Float, b: MouseButton) {
+        if (b == MouseButton.RIGHT && contains(x, y, 0f)) {
+            popUp.show((host as VPanel).jPanel, x.roundToInt(), y.roundToInt())
+        }
     }
 
     override val w: Float
@@ -200,5 +193,9 @@ class MultilayerPerceptronView(
         }
 
     override fun draw(g: Graphics2D) {
+        if (showBorder) {
+            g.color = GUIUtil.HALF_GRAY
+            g.drawOutline(0f, 0f, w, h, -host.padding / 2)
+        }
     }
 }

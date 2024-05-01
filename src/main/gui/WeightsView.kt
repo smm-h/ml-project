@@ -28,8 +28,6 @@ class WeightsView(
     override var x: Float = 0f
     override var y: Float = 0f
 
-    override var containsMouse: Boolean = false
-
     var enabled: Boolean = true
 
     //    Area.Circular
