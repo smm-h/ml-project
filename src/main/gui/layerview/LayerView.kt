@@ -43,7 +43,8 @@ interface LayerView : Iterable<Int>, Rectangular {
             )
         }
         if (containsMouse) {
-            GUIUtil.drawOutline(g, x, y, w, h, 2f)
+            g.color = Color.GRAY
+            GUIUtil.drawOutline(g, x, y, w, h, 4f)
         }
     }
 

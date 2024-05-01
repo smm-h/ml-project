@@ -47,7 +47,6 @@ object GUIUtil {
 
     fun drawOutline(g: Graphics2D, x: Float, y: Float, w: Float, h: Float, margin: Float) {
         val arc = (margin * 2).roundToInt().coerceAtLeast(1)
-        g.color = Color.BLUE
         g.drawRoundRect(
             (x - margin).roundToInt(),
             (y - margin).roundToInt(),

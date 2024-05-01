@@ -278,9 +278,8 @@ class MultilayerPerceptronView(
         super.paintComponent(g0)
         val g = GUIUtil.getSmoothGraphics(g0)
 
-        if (showBorder) {
-            GUIUtil.drawOutline(g, 0f, 0f, width.toFloat(), height.toFloat(), -padding / 2)
-        }
+//        if (showBorder)
+//            GUIUtil.drawOutline(g, 0f, 0f, width.toFloat(), height.toFloat(), -padding / 2)
 
         var x: Float
 
