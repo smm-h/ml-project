@@ -1,6 +1,5 @@
 package src.main.gui.layerview
 
-import src.main.gui.GUIUtil.redraw
 import javax.swing.*
 
 abstract class AbstractLayerView : LayerView {

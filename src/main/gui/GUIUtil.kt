@@ -1,7 +1,6 @@
 package src.main.gui
 
 import java.awt.*
-import javax.swing.JComponent
 import kotlin.math.roundToInt
 
 object GUIUtil {
@@ -10,6 +9,9 @@ object GUIUtil {
 
     infix fun Int.by(that: Int) =
         Dimension(this, that)
+
+    infix fun Float.by(that: Float) =
+        this.roundToInt() by that.roundToInt()
 
     fun gray(value: Float, alpha: Float = 1f) =
         Color(value, value, value, alpha)
@@ -44,11 +46,6 @@ object GUIUtil {
             RenderingHints.KEY_STROKE_CONTROL,
             RenderingHints.VALUE_STROKE_PURE
         )
-    }
-
-    fun JComponent.redraw() {
-        revalidate()
-        repaint()
     }
 
     fun Graphics2D.drawOutline(x: Float, y: Float, w: Float, h: Float, margin: Float) {

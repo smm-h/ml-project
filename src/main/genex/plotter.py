@@ -29,7 +29,7 @@ def get_plot_data(timestamp):
     return plot_data
 
 
-with open(path+"index.txt") as f:
+with open(path + "index.txt") as f:
     all_timestamps = [i.strip() for i in f]
 
 last_count = 1

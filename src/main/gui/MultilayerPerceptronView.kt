@@ -1,31 +1,33 @@
 package src.main.gui
 
-import src.main.gui.GUIUtil.by
-import src.main.gui.GUIUtil.redraw
-import src.main.gui.layerview.*
-import src.main.gui.vis.Visual
+import src.main.gui.layerview.BigColumnLayerView
+import src.main.gui.layerview.BigGridLayerView
+import src.main.gui.layerview.SmallColumnLayerView
+import src.main.gui.layerview.SmallGridLayerView
+import src.main.gui.vis.AbstractRectangularVisual
+import src.main.gui.vis.VHost
 import src.main.mlp.MultilayerPerceptron
 import src.main.mnist.MNIST
 import java.awt.Dimension
-import java.awt.Graphics
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
-import java.util.*
-import javax.swing.*
+import java.awt.Graphics2D
+import javax.swing.JCheckBoxMenuItem
+import javax.swing.JMenuItem
+import javax.swing.JPopupMenu
+import javax.swing.JSeparator
 import kotlin.math.max
 import kotlin.math.round
-import kotlin.math.roundToInt
 
 class MultilayerPerceptronView(
+    override val host: VHost,
     private val filename: String,
     vararg gridLayers: Pair<Int, Dimension>,
-) : JPanel() {
+) : AbstractRectangularVisual() {
+
+    override var x: Float = 0f
+    override var y: Float = 0f
 
     private val structure = MultilayerPerceptron.readStructure(filename)
     private val model by lazy { MultilayerPerceptron.readModel(filename) }
-
-    private val padding: Float = 8f
-    private val gridLayersMap = gridLayers.toMap()
 
     private val n = structure.hiddenLayerSizes.size + 2
 
@@ -33,18 +35,18 @@ class MultilayerPerceptronView(
         set(value) {
             field = value
             layerViews.forEachIndexed { i, it -> it.showCells = value || i == 0 || i == n - 1 }
-            redraw()
+            host.redraw()
         }
     private var showWeights = true
         set(value) {
             field = value
             weightsViews.forEach { it.enabled = value }
-            redraw()
+            host.redraw()
         }
     private var showBorder = true
         set(value) {
             field = value
-            redraw()
+            host.redraw()
         }
 
     var input: FloatArray
@@ -61,9 +63,10 @@ class MultilayerPerceptronView(
         model.forwardPropagateAlsoRecord(input).forEachIndexed { index, data ->
             layerViews[index + 1].data = data
         }
-        redraw()
+        host.redraw()
     }
 
+    private val gridLayersMap = gridLayers.toMap()
     private val layerViews = List(n) { i ->
         val s = when (i) {
             0 -> structure.inputSize
@@ -75,25 +78,25 @@ class MultilayerPerceptronView(
             val mh = 200f
             if (s > 16) {
                 val cellSize = round(mh / s).coerceAtLeast(1f)
-                BigColumnLayerView(this, s, cellSize)
+                BigColumnLayerView(host, s, cellSize)
             } else {
                 val vSep = round(mh / 4 / s).coerceAtLeast(1f)
                 val cellSize = vSep * 3
-                SmallColumnLayerView(this, s, cellSize, vSep)
+                SmallColumnLayerView(host, s, cellSize, vSep)
             }
         } else {
             val w = d.width
             val h = d.height
             if (max(w, h) > 16) {
-                BigGridLayerView(this, w, h)
+                BigGridLayerView(host, w, h)
             } else {
-                SmallGridLayerView(this, w, h)
+                SmallGridLayerView(host, w, h)
             }
         }
     }
 
     private val weightsViews = List(n - 1) { i ->
-        val h = vSize
+        val h = h
         WeightsView(
             weights = model.getWeights(i),
             l = layerViews[i],
@@ -106,106 +109,6 @@ class MultilayerPerceptronView(
             alphaFactor = 1f,
             minimumVisibleAlpha = 0.01f,
         )
-    }
-
-    private val visualsContainingMouse = PriorityQueue<Visual> { v1, v2 -> (v1.area - v2.area).roundToInt() }
-
-    private val mouseHandler = object : MouseAdapter() {
-        private var isLeftMouseButtonDown = false
-
-        override fun mousePressed(e: MouseEvent) {
-            when (e.button) {
-                MouseEvent.BUTTON1 -> {
-                    val l = layerViews.first()
-                    val rx: Float = e.x - padding
-                    val ry: Float = e.y - (height - l.h) / 2
-                    if (rx >= 0 && rx <= l.w &&
-                        ry >= 0 && ry <= l.h
-                    ) isLeftMouseButtonDown = true
-                }
-
-                else -> Unit
-            }
-        }
-
-        override fun mouseReleased(e: MouseEvent) {
-            when (e.button) {
-                MouseEvent.BUTTON1 -> {
-                    if (isLeftMouseButtonDown) {
-                        isLeftMouseButtonDown = false
-                        forwardPropagate()
-                    }
-                }
-
-                MouseEvent.BUTTON3 -> {
-                    val v = visualsContainingMouse.elementAtOrNull(0)
-                    val p =
-                        if (v == null)
-                            popUp
-                        else
-                            (v as LayerView).popupMenu
-                    p.show(e.component, e.x, e.y)
-                }
-
-                else -> Unit
-            }
-        }
-
-        override fun mouseMoved(e: MouseEvent) {
-            layerViews.forEach {
-                val x = it.contains(e.x.toFloat(), e.y.toFloat(), 2f)
-                if (it.containsMouse != x) {
-                    it.containsMouse = x
-                    if (x) {
-                        visualsContainingMouse.add(it)
-                    } else {
-                        visualsContainingMouse.remove(it)
-                    }
-                    redraw()
-                }
-            }
-        }
-
-        override fun mouseDragged(e: MouseEvent) {
-            if (isLeftMouseButtonDown) {
-                val l = layerViews.first()
-                val rx: Float = e.x - padding
-                val ry: Float = e.y - (height - l.h) / 2
-                when (l) {
-                    is BigGridLayerView -> {
-                        val i = (rx / l.cellSize).toInt()
-                        val j = (ry / l.cellSize).toInt()
-                        if (
-                            i >= 0 &&
-                            j >= 0 &&
-                            i <= l.hCellCount &&
-                            j <= l.vCellCount
-                        ) {
-                            val sgn = if (e.isControlDown) -1 else +1
-                            val iM = i > 0
-                            val jM = j > 0
-                            val iP = i < l.hCellCount - 1
-                            val jP = j < l.vCellCount - 1
-                            if (iM && jM) l[i - 1, j - 1] += sgn * 0.1f
-                            if (iP && jM) l[i + 1, j - 1] += sgn * 0.1f
-                            if (iM && jP) l[i - 1, j + 1] += sgn * 0.1f
-                            if (iP && jP) l[i + 1, j + 1] += sgn * 0.1f
-                            if (iM) l[i - 1, j] += sgn * 0.2f
-                            if (iP) l[i + 1, j] += sgn * 0.2f
-                            if (jM) l[i, j - 1] += sgn * 0.2f
-                            if (jP) l[i, j + 1] += sgn * 0.2f
-                            l[i, j] += sgn * 1f
-                            redraw()
-                        }
-                    }
-
-                    else -> Unit
-                }
-            }
-        }
-    }.also {
-        addMouseListener(it)
-        addMouseMotionListener(it)
     }
 
     private val popUp = JPopupMenu().apply {
@@ -244,7 +147,7 @@ class MultilayerPerceptronView(
         input = FloatArray(structure.inputSize)
     }
 
-    private val hSize: Float
+    override val w: Float
         get() {
             var w = 0f
             layerViews.forEachIndexed { index, layer ->
@@ -252,51 +155,22 @@ class MultilayerPerceptronView(
                 if (index != n - 1)
                     w += weightsViews[index].gapSize
             }
-            return w + padding * 2
+            return w + host.padding * 2
         }
 
-    private val vSize: Float
+    override val h: Float
         get() {
             var h = 0f
             layerViews.forEach { layer ->
                 h = max(layer.h, h)
             }
-            return h + padding * 2
+            return h + host.padding * 2
         }
 
-    private fun updateSize() {
-        size = hSize.roundToInt() by vSize.roundToInt()
-        preferredSize = size
-        minimumSize = size
-        redraw()
+    override fun draw(g: Graphics2D) {
     }
 
-    override fun paintComponent(g0: Graphics?) {
-        super.paintComponent(g0)
-        val g = GUIUtil.getSmoothGraphics(g0)
-
-//        if (showBorder)
-//            GUIUtil.drawOutline(g, 0f, 0f, width.toFloat(), height.toFloat(), -padding / 2)
-
-        var x: Float
-
-        x = padding
-        weightsViews.forEach {
-            it.x = x
-            it.y = ((height - vSize) / 2)
-            it.draw(g)
-            x += it.l.w + it.gapSize
-        }
-
-        x = padding
-        layerViews.forEachIndexed { i, it ->
-            val y = (height - it.h) / 2
-            it.x = x
-            it.y = y
-            it.draw(g)
-            x += it.w
-            if (i != n - 1)
-                x += weightsViews[i].gapSize
-        }
+    private fun updateSize() {
+        host.setSize(w, h)
     }
 }

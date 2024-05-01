@@ -7,5 +7,5 @@ sealed class TreeItem(private val name: String) {
     override fun hashCode(): Int = name.hashCode()
     override fun equals(other: Any?): Boolean = false
 
-    class FileItem(val file: File) : TreeItem(file.name) {}
+    class FileItem(val file: File) : TreeItem(file.name)
 }
