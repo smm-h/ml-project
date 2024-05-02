@@ -17,8 +17,8 @@ interface GridLayerView : LayerView {
     operator fun get(i: Int, j: Int): Float = data[i + j * hCellCount]
 
     override fun onMouseDrag(x: Float, y: Float) {
-        if (editing && containsMouse && host.isMouseLeftButtonDown) {
-            val sgn = if (host.isControlDown) -1 else +1
+        if (editing && containsMouse && (host.isMouseLeftButtonDown || host.isMouseMiddleButtonDown)) {
+            val sgn = if (host.isMouseMiddleButtonDown) -1 else +1
             val i = ((x - this.x) / (cellSize + hSep)).toInt()
             val j = ((y - this.y) / (cellSize + vSep)).toInt()
             if (i in 0..hCellCount && j in 0..vCellCount) {

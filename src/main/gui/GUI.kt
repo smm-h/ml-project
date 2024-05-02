@@ -97,7 +97,7 @@ class GUI {
         @JvmStatic
         fun main(args: Array<String>) {
             GUI().apply {
-                darkMode = true
+                darkMode = false
                 frame.apply {
                     preferredSize = 800 by 600
                     size = preferredSize

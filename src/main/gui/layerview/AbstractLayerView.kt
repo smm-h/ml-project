@@ -3,6 +3,7 @@ package src.main.gui.layerview
 import src.main.gui.GUIUtil.createBoundCheckBoxMenuItem
 import src.main.gui.MultilayerPerceptronView
 import src.main.gui.vis.VHost
+import src.main.mnist.MNIST
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
 import javax.swing.JSeparator
@@ -64,13 +65,25 @@ abstract class AbstractLayerView(final override val multilayerPerceptronView: Mu
             }
         }
 
-    override val popupMenu = JPopupMenu().apply {
-        add(mnuShowCellValues)
-        add(mnuEditing)
-        add(JSeparator(SwingConstants.HORIZONTAL))
-        add(mnuClear)
-        add(mnuRandomize)
-        add(JSeparator(SwingConstants.HORIZONTAL))
-        add(mnuProperties)
+    override val popupMenu by lazy {
+        JPopupMenu().apply {
+            add(mnuShowCellValues)
+            add(mnuEditing)
+            add(JSeparator(SwingConstants.HORIZONTAL))
+            add(mnuClear)
+            add(mnuRandomize)
+            if (cellCount == 784) {
+                add(JSeparator(SwingConstants.HORIZONTAL))
+                add(JMenuItem("Choose random datapoint as input").apply {
+                    addActionListener {
+                        data = MNIST.training[(Math.random() * 1000).toInt()].data
+                        multilayerPerceptronView.lastChangedLayer = this@AbstractLayerView
+                        host.redraw()
+                    }
+                })
+            }
+            add(JSeparator(SwingConstants.HORIZONTAL))
+            add(mnuProperties)
+        }
     }
 }

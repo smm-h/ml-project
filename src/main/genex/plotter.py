@@ -34,7 +34,7 @@ with open(path + "index.txt") as f:
 
 last_count = 1
 
-selected_timestamps = all_timestamps[-last_count:None]
+selected_timestamps = all_timestamps[-5:-4]  # [-last_count:None]
 
 print(*selected_timestamps, sep="\n")
 
